@@ -1,0 +1,7 @@
+# Ignore IDE config files, node_modules
+# Track shared scopes
+.idea/*
+!.idea/scopes
+
+# Ignore composer autogen
+/vendor/
