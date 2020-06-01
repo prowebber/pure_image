@@ -82,7 +82,7 @@ original aspect ratio cannot be kept at the specified size.
 | 'save_path' | _string_ | The absolute path of the output file.                                                                                                                                |
 
 **Example Request**
-```
+```php
 $pure_image = new pure_image\Main();
 $pure_image->add->image('/home/user/original.jpg');
 $pure_image->out->image([
