@@ -1,5 +1,7 @@
 # Pure Image
 
+[![GitHub version](https://badge.fury.io/gh/prowebber%2Fpure_image.svg)](https://badge.fury.io/gh/prowebber%2Fpure_image)
+
 A PHP-only script that makes it easier to automatically compress, resize, and crop images.  This uses the
 native functions within PHP and PHP GD to compress and resize the images.  Below are the main benefits
 of Pure Image:
