@@ -43,19 +43,19 @@ class Helper__Common {
 	public function getQuality($output_type, $wanted_quality){
 		if($output_type == 'jpg'){
 			if($wanted_quality == '5'){
-				return 75;                      # Don't go higher than 75 since the filesize gets huge
+				return 35;
 			}
 			elseif($wanted_quality == '4'){
-				return 65;
+				return 45;
 			}
 			elseif($wanted_quality == '3'){
 				return 55;
 			}
 			elseif($wanted_quality == '2'){
-				return 45;
+				return 65;
 			}
 			elseif($wanted_quality == '1'){
-				return 35;
+				return 75;                      # Don't go higher than 75 since the filesize gets huge
 			}
 			else{
 				return 65;
@@ -64,19 +64,19 @@ class Helper__Common {
 		
 		elseif($output_type == 'png'){
 			if($wanted_quality == '5'){
-				return 6;                      # Don't go higher than 75 since the filesize gets huge
+				return 8;                      # Don't go higher than 75 since the filesize gets huge
 			}
 			elseif($wanted_quality == '4'){
-				return 5;
+				return 6;
 			}
 			elseif($wanted_quality == '3'){
 				return 4;
 			}
 			elseif($wanted_quality == '2'){
-				return 3;
+				return 2;
 			}
 			elseif($wanted_quality == '1'){
-				return 2;
+				return 0;
 			}
 			else{
 				return 6;

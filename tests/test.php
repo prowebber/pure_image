@@ -17,8 +17,8 @@ $pimage->add->image($img_dir . $img_name);
 /* Compress Only */
 $pimage->out->image([
 	'method'      => 'compress',
-	'quality'     => 65,
-	'save_path'   => $img_dir . '\compress-only.jpg',
+	'quality'     => 3,
+	'save_path'   => $img_dir . '\compress-only-3.jpg',
 ]);
 
 

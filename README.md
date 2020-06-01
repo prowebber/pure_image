@@ -1,6 +1,12 @@
 # Pure Image
 
-A PHP script that makes it easier to automatically compress, resize, and crop images.
+A PHP-only script that makes it easier to automatically compress, resize, and crop images.  This uses the
+native functions within PHP and PHP GD to compress and resize the images.  Below are the main benefits
+of Pure Image:
+
+* Handles image type conversions (e.g. convert .png to .jpg)
+* Maintains the original image's aspect ratio while scaling down
+* Detects & fixes images that have an aspect ratio which cannot be divided evenly to fit the specified width/height.
 
 ### General
 
@@ -75,14 +81,14 @@ setting blank or set it to `0`, the script will fallback to its default value. \
 &nbsp;
 
 
-| Level | Description          | Jpeg Equivalent | PNG Equivalent |
-|:-----:|:---------------------|:---------------:|:--------------:|
-|   0   | Default / fallback   |       65        |       6        |
-|   1   | Least compression    |       75        |       0        |
-|   2   | Low  compression     |       65        |       2        |
-|   3   | Moderate compression |       55        |       4        |
-|   4   | High compression     |       45        |       6        |
-|   5   | Highest compression  |       35        |       8        |
+| Level | Description          | Quality | Jpeg Equivalent | PNG Equivalent |
+|:-----:|:---------------------|:--------|:---------------:|:--------------:|
+|   0   | Default / fallback   |         |       65        |       6        |
+|   1   | Least compression    | Best    |       75        |       0        |
+|   2   | Low  compression     | Good    |       65        |       2        |
+|   3   | Moderate compression | Decent  |       55        |       4        |
+|   4   | High compression     | Low     |       45        |       6        |
+|   5   | Highest compression  | Poor    |       35        |       8        |
 
 
 
