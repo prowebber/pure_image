@@ -182,6 +182,7 @@ class Apps__Set_Output{
 		$out_longest_side_px    = $this->helper->getLargestSide($width_out, $height_out);
 		$out_longest_side       = ($width_out == $height_out) ? 'equal' : (($width_out > $height_out) ? 'width' : 'height');
 		
+		$this->params['rules']['is_crop_needed']            = 1;                    # @todo will crop always be needed?
 		$this->params['rules']['longest_side']['source']    = $source_longest_side;
 		$this->params['rules']['longest_side']['source_px'] = $source_longest_side_px;
 		$this->params['rules']['longest_side']['output']    = $out_longest_side;
@@ -193,8 +194,34 @@ class Apps__Set_Output{
 		 */
 		
 		// If the image is taller than it is wide
-		if($source_longest_side == 'height'){                                       # If the source image is taller than it is wide
-			$this->params['rules']['calc_dimensions']['width'] = $width_out;        # Use the width out the user specified
+		if($source_longest_side == 'height'){                                           # If the source image is taller than it is wide
+			
+			# Get the height if the image was scaled down to fit the width
+			$ratio         = $width_source / $width_out;
+			$needed_height = $height_source / $ratio;
+			
+			$this->params['rules']['calc_dimensions']['ratio']  = $ratio;
+			$this->params['rules']['calc_dimensions']['width']  = $width_out;           # Use the width out the user specified
+			$this->params['rules']['calc_dimensions']['height'] = $needed_height;       # Use the height out the user specified
+			
+			# The final height needs to be even and cannot be a decimal
+			$set_height = floor($needed_height);
+			if($set_height % 2 != 0){                        # If the set height is odd
+				$set_height -= 1;                            # Subtract 1
+			}
+			# @todo add a check to verify the image can fit the desired dimension
+			
+			# Since the image does not need to keep aspect ratio, round down to the nearest pixel @todo test this theory
+			$this->params['rules']['resize']['width']  = $width_out;
+			$this->params['rules']['resize']['height'] = $set_height;
+			
+			$middle_y = ($set_height - $height_out) / 2;
+			
+			$this->params['rules']['crop']['x']             = 0;
+			$this->params['rules']['crop']['y']             = $middle_y;
+			$this->params['rules']['crop']['width']         = $width_out;
+			$this->params['rules']['crop']['height']        = $height_out;
+			$this->params['rules']['crop']['crop_position'] = 'middle center';
 		}
 		
 		// If the image is wider than it is tall
@@ -204,7 +231,6 @@ class Apps__Set_Output{
 			$ratio        = $height_source / $height_out;
 			$needed_width = $width_source / $ratio;
 			
-			$this->params['rules']['is_crop_needed']            = 1;
 			$this->params['rules']['calc_dimensions']['ratio']  = $ratio;
 			$this->params['rules']['calc_dimensions']['width']  = $needed_width;
 			$this->params['rules']['calc_dimensions']['height'] = $height_out;      # Use the height out the user specified
