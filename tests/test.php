@@ -55,4 +55,5 @@ $pimage->showDebug();
 $pimage->save->image();
 $pimage->showErrors();
 $pimage->isErrorFree();
+$pimage->setMaxImageSize(10000000);
 

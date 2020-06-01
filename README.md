@@ -245,6 +245,18 @@ $pimage->out->fit([
 $pimage->save->image();
 ```
 
+### Custom Settings
+Below are settings you can set and/or change dynamically. \
+&nbsp;
+
+**Max Allowed Image Size**  
+This sets the maximum allowed size (in bytes) that a source image can be.  If this image size is
+exceeded an error will be thrown.
+
+```php
+$pimage->setMaxImageSize(10000000);
+```
+
 
 ### Errors
 Pure Image id designed to catch all errors before generating any output images.  If an error is detected it  
