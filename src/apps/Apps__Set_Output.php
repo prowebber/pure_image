@@ -50,6 +50,7 @@ class Apps__Set_Output{
 	}
 	
 	
+	
 	public function fit($params){
 		$this->image($params, 'fit');
 	}
@@ -80,7 +81,8 @@ class Apps__Set_Output{
 		$path_info    = pathinfo($save_path);                                               # Get file info
 		$save_to_dir  = $path_info['dirname'];
 		$save_as_name = $path_info['filename'];
-		$save_path    = $save_to_dir . '/' . $save_as_name . '.' . $output_img_type;        # Set the correct name (with the correct file extension type)
+		$save_img_as  = $save_as_name . '.' . $output_img_type;                              # Set the correct name (with the correct file extension type)
+		$save_path    = $save_to_dir . '/' . $save_img_as;
 		
 		
 		// Validate
@@ -93,6 +95,7 @@ class Apps__Set_Output{
 			'width_px'    => $width,
 			'height_px'   => $height,
 			'save_path'   => $save_path,
+			'save_img_as' => $save_img_as,
 			'quality'     => $quality,
 			'output_type' => $output_img_type,      # The type of image you want this file saved as
 			

@@ -81,6 +81,15 @@ class PureImage{
 	public function getErrors(){
 		return $this->ch->getErrors();
 	}
+	
+	
+	
+	/**
+	 * Return an array of all the images processed
+	 */
+	public function getOutputInfo(){
+		return $this->ch->output;
+	}
 }
 
 ?>
