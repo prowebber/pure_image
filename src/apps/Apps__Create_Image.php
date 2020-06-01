@@ -62,52 +62,6 @@ class Apps__Create_Image{
 			}
 		}
 	}
-	
-	
-	
-	/**
-	 * Apps__Create_Image Controller Function
-	 */
-	public function imageOld(){
-		if(!$this->ch->errorFree()) return FALSE;               # Don't continue if an error exists
-		$file_type = $this->ch->source['file_type'];            # The type of image the source file is
-		
-		echo "<hr>";
-		foreach($this->ch->output as $image){           # Loop through each image to be created
-			echo "<h3>Image</h3><pre>" . print_r($image, TRUE) . "</pre>";
-			
-			$is_crop_needed   = $image['rules']['is_crop_needed'];
-			$save_path        = $image['save_path'];
-			$quality          = $image['quality'];
-			$output_file_type = $image['output_type'];
-			
-			// Resize the image
-			$output_width  = $image['rules']['resize']['width'];
-			$output_height = $image['rules']['resize']['height'];
-			
-			if($output_file_type == 'jpg'){
-				$this->jpeg->make($this->ch->source, $output_width, $output_height, $save_path, $quality);     # Make the image
-			}
-			elseif($output_file_type == 'png'){
-				$this->png->make($this->ch->source, $output_width, $output_height, $save_path, $quality);
-			}
-			
-			// If a crop is needed to fit the image
-			if($is_crop_needed){
-				$output_width  = $image['rules']['crop']['width'];
-				$output_height = $image['rules']['crop']['height'];
-				$x_pos         = $image['rules']['crop']['x'];
-				$y_pos         = $image['rules']['crop']['y'];
-				
-				if($output_file_type == 'jpg'){
-					$this->jpeg->crop($save_path, $output_width, $output_height, $x_pos, $y_pos, $quality);
-				}
-				elseif($output_file_type == 'png'){
-					$this->png->crop($save_path, $output_width, $output_height, $x_pos, $y_pos, $quality);
-				}
-			}
-		}
-	}
 }
 
 ?>

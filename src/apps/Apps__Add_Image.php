@@ -35,7 +35,7 @@ class Apps__Add_Image{
 		
 		# Verify the source image exists before continuing
 		if(!file_exists($path)){
-			$this->ch->addErr("The image source was not found or does not exist.");
+			$this->ch->addErr("The image: '$path' was not found or does not exist.");
 			return FALSE;
 		}
 		

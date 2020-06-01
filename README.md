@@ -13,58 +13,95 @@ The following requirements must be met before using:
 * PHP >=7.3
 * PHP GD (https://www.php.net/manual/en/book.image.php)
 
+### Basic Usage
+Pure Image is easy to use and only requires 4 steps:
+1. A call to init Pure Image
+2. Specify the source image you want to compress and/or resize
+3. Specify the output image and compression settings
+4. Save the images
 
-## Params
 
-### Image Compression/Quality
-
-| Level | Description                                             |
-|:-----:|:--------------------------------------------------------|
-|   0   | No compression, same as input                           |
-|   1   | Least compression (higher filesize, but better quality) |
-|  10   | Most compression (smallest filesize, poorest quality)   |
-
-## Usage
-
-### Init Pure Image
-```
-// You will need to place Pure Image's composer autoload statement here
+#### Step 1) Instantiating Pure Image
+```php
+require_once __DIR__ . 'path_to_composer/autoload.php';
 
 $pimage = new pure_image\Main();
 ```
+&nbsp;
 
+#### Step 2) Specify a Source Image
+Pure Image requires a source image for all operations.  You can do this by specifying the full
+path to the image you want to compress/resize.
 
-### Add an Image
-1. Specify the image you want to format
-
+```php
+$pimage->add->image('/abs_path/image.jpg');
 ```
-$pimage->add->image($img_path);
+&nbsp;
+
+#### Step 3) Specify an Output Image
+This is where you specify the resizing method, the name and location of the output image, and additional
+params if needed.
+```php
+$pimage->out->image([
+	'method'      => 'compress',
+	'save_path'   => '/output_dir/file_name.jpg',
+]);
+```
+
+#### Step 4) Run Pure Image
+The final step is running the script.  This will perform all actions and save the compressed/resized
+image to the location you specified in step 3.
+
+```php
+$pimage->save->image();
 ```
 
 
-## Size Options
+## Common Settings
 
-| Method  | Width Px | Height Px | Description                                                                                                  |
-|:-------:|:--------:|:---------:|:-------------------------------------------------------------------------------------------------------------|
-|  `fit`  | required | required  | Shrink the image so both the width and height fit within the dimensions specified                            |
-| `cover` | required | required  | Shrink the image so the width and height are the exact dimensions specified. The final image may be cropped. |
+### Resize Options/Methods
 
----
+|   Method   | Description                                                                                                  |
+|:----------:|:-------------------------------------------------------------------------------------------------------------|
+| `compress` | Don't resize the image; compress only                                                                        |
+|   `fit`    | Shrink the image so both the width and height fit within the dimensions specified                            |
+|  `cover`   | Shrink the image so the width and height are the exact dimensions specified. The final image may be cropped. |
+
+
+### Image Compression/Quality
+The image compression is specified on a scale of 0 to 5, with 1 being the lest compression (largest filesize/best quality)
+and 5 being the most compressed (smallest filesize/poorest quality). If you leave the compression
+setting blank or set it to `0`, the script will fallback to its default value. \
+&nbsp;
+
+
+| Level | Description          | Jpeg Equivalent | PNG Equivalent |
+|:-----:|:---------------------|:---------------:|:--------------:|
+|   0   | Default / fallback   |       65        |       6        |
+|   1   | Least compression    |       75        |       0        |
+|   2   | Low  compression     |       65        |       2        |
+|   3   | Moderate compression |       55        |       4        |
+|   4   | High compression     |       45        |       6        |
+|   5   | Highest compression  |       35        |       8        |
+
+
+
+## Pure Image Methods
+
 ### Fit
 The image is resized so both the width and height will fit inside the dimensions specified.  The output image will maintain
 the original aspect ratio.
 
-**Fit Params**
+**All Params**
 
-| Param       | Type     | Description                                                                                                                                                         |
-|:------------|:---------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 'width'     | _int_    | The maximum width (px) of the image after resized                                                                                                                   |
-| 'height'    | _int_    | The maximum height (px) of the image after resized                                                                                                                  |
-| 'quality'   | _int_    | Scale of 0-100. `0` is the most compressed (poorest quality & smallest filesize).  `100` is least compressed (best quality & largest filesize).  65 is recommended. |
-| 'quality'   | _int_    | The desired compression/quality level.                                                                                                                              |
-| 'save_path' | _string_ | The absolute path of the output file.                                                                                                                               |
+| Param       | Type        | Required | Description                                                                                  |
+|:------------|:------------|:--------:|:---------------------------------------------------------------------------------------------|
+| 'width'     | _int_       |   Yes    | The maximum width (px) of the image after resized                                            |
+| 'height'    | _int_       |   Yes    | The maximum height (px) of the image after resized                                           |
+| 'quality'   | _int\|null_ |    No    | The desired compression/quality level. [See Compression Settings](#image-compressionquality) |
+| 'save_path' | _string_    |   Yes    | The absolute path of the output file.                                                        |
 
-**Example Request**
+**Example Code**
 ```
 $pimage = new pure_image\Main();
 $pimage->add->image('/home/user/original.jpg');
@@ -72,12 +109,12 @@ $pimage->out->image([
 	'method'    => 'fit',
 	'width'     => 250,
 	'height'    => 250,
-	'quality'   => 65,
+	'quality'   => 0,
 	'save_path' => '/home/user/resized.jpg,
 ]);
 ```
-
 ---
+
 ### Cover
 The image is resized to the exact width and height specified.  The image will be cropped if the
 original aspect ratio cannot be kept at the specified size.
@@ -104,4 +141,38 @@ $pimage->out->image([
 	'quality'   => 65,
 	'save_path' => '/home/user/resized.jpg,
 ]);
+```
+
+## Advanced
+
+### Debug
+
+```
+ID
+|-- method
+|-- width_px
+|-- height_px
+|-- save_path
+|-- quality
+|-- output_type
+|-- rules
+|   |-- is_crop_needed
+|   |-- longest_side
+|   |   |-- source
+|   |   |-- source_px
+|   |   |-- output
+|   |   |-- output_px
+|   |-- calc_dimensions
+|   |   |-- ratio
+|   |   |-- width
+|   |   |-- height
+|   |-- resize
+|   |   |-- width
+|   |   |-- height
+|   |-- crop
+|   |   |-- x
+|   |   |-- y
+|   |   |-- width
+|   |   |-- height
+|   |   |-- crop_position
 ```

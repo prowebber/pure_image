@@ -65,6 +65,16 @@ class Channel{
 	
 	
 	
+	public function checkImageDimensions($output_width, $output_height){
+		$source_width  = $this->source['width_px'];
+		$source_height = $this->source['height_px'];
+		
+		if($output_width > $source_width) $this->addErr("The output image cannot be wider than the source image.");
+		if($output_height > $source_height) $this->addErr("The output image height cannot be taller than the source image");
+	}
+	
+	
+	
 	public function checkAllowedFileTypes($file_type){
 		$allowed_file_types = array_flip($this->allowed_mimes);
 		

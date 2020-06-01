@@ -37,13 +37,10 @@ class Apps__Set_Output{
 	public function image($params){
 		if(!$this->ch->errorFree()) return FALSE;               # Don't continue if an error exists
 		
-		// Get the params
-		
-		# Source image info
+		// Get source image info
 		$source_img_type = $this->ch->source['file_type'];      # The type of image file e.g. jpg, png, etc.
 		
-		
-		# Get the required params
+		// Get the output params
 		$method    = $params['method'] ?? NULL;
 		$width     = $params['width'] ?? NULL;
 		$height    = $params['height'] ?? NULL;
@@ -53,7 +50,7 @@ class Apps__Set_Output{
 		$output_img_type = $params['output_type'] ?? $source_img_type;                      # Use the type specified by the user; default to the input filetype if not specified
 		$output_img_type = trim(strtolower($output_img_type));                              # Format the output image type
 		$user_quality    = $params['quality'];                                              # Get the quality specified by the user
-		$quality = $this->helper->getQuality($output_img_type, $user_quality);              # Get the quality level for the image format
+		$quality         = $this->helper->getQuality($output_img_type, $user_quality);              # Get the quality level for the image format
 		
 		# Get the save location info
 		$path_info    = pathinfo($save_path);                                               # Get file info
@@ -63,7 +60,8 @@ class Apps__Set_Output{
 		
 		
 		// Validate
-		$this->ch->checkAllowedFileTypes($output_img_type);
+		$this->ch->checkAllowedFileTypes($output_img_type);     # Check for filetype issues
+		$this->ch->checkImageDimensions($width, $height);       # Check for dimension issues
 		if(!$this->ch->errorFree()) return FALSE;               # Don't continue if an error exists
 		
 		$this->params = [
@@ -98,17 +96,20 @@ class Apps__Set_Output{
 				
 				# If the image needs to be cropped in order to fit
 				'crop'            => [
-					'x'             => NULL,               # The start coord for x position
-					'y'             => NULL,               # The start coord for y position
-					'width'         => NULL,               # The width to crop
-					'height'        => NULL,               # The height to crop
-					'crop_position' => NULL,        # Where the crop was positioned
+					'x'             => NULL,                # The start coord for x position
+					'y'             => NULL,                # The start coord for y position
+					'width'         => NULL,                # The width to crop
+					'height'        => NULL,                # The height to crop
+					'crop_position' => NULL,                # Where the crop was positioned
 				],
 			],
 		];
 		
 		// If fitting the image to the specified dimensions
-		if($method == 'fit'){
+		if($method == 'compress'){
+			$this->calcCompress();
+		}
+		elseif($method == 'fit'){
 			$this->calcFit();
 		}
 		elseif($method == 'cover'){
@@ -116,6 +117,21 @@ class Apps__Set_Output{
 		}
 		
 		$this->ch->output[] = $this->params;            # Add to the output
+	}
+	
+	
+	
+	private function calcCompress(){
+		$width_source  = $this->ch->source['width_px'];
+		$height_source = $this->ch->source['height_px'];
+		
+		$this->params['rules']['calc_dimensions']['ratio']  = 1;
+		$this->params['rules']['calc_dimensions']['width']  = $width_source;
+		$this->params['rules']['calc_dimensions']['height'] = $height_source;
+		
+		$this->params['rules']['is_crop_needed']   = 0;
+		$this->params['rules']['resize']['width']  = $width_source;
+		$this->params['rules']['resize']['height'] = $height_source;
 	}
 	
 	
