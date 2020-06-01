@@ -27,33 +27,30 @@ class Apps__Create_Image{
 	 * Apps__Create_Image Controller Function
 	 */
 	public function image(){
-		if(!$this->ch->errorFree()) return false;               # Don't continue if an error exists
+		if(!$this->ch->errorFree()) return FALSE;               # Don't continue if an error exists
 		
 		echo "<hr>";
 		foreach($this->ch->output as $image){           # Loop through each image to be created
 			echo "<h3>Image</h3><pre>" . print_r($image, TRUE) . "</pre>";
 			
-			$method = $image['method'];
+			$method         = $image['method'];
+			$is_crop_needed = $image['rules']['is_crop_needed'];
+			$save_path      = $image['save_path'];
+			$jpeg_quality   = $image['quality'];
 			
-			if($method == 'fit'){
-				$is_crop_needed = $image['fit']['is_crop_needed'];
-				$save_path      = $image['save_path'];
-				$jpeg_quality   = $image['quality'];
+			// Resize the image
+			$output_width  = $image['rules']['resize']['width'];
+			$output_height = $image['rules']['resize']['height'];
+			$this->jpeg->make($this->ch->source, $output_width, $output_height, $save_path, $jpeg_quality);     # Make the image
+			
+			// If a crop is needed to fit the image
+			if($is_crop_needed){
+				$output_width  = $image['rules']['crop']['width'];
+				$output_height = $image['rules']['crop']['height'];
+				$x_pos         = $image['rules']['crop']['x'];
+				$y_pos         = $image['rules']['crop']['y'];
 				
-				// Resize the image
-				$output_width  = $image['fit']['resize']['width'];
-				$output_height = $image['fit']['resize']['height'];
-				$this->jpeg->make($this->ch->source, $output_width, $output_height, $save_path, $jpeg_quality);     # Make the image
-				
-				// If a crop is needed to fit the image
-				if($is_crop_needed){
-					$output_width  = $image['fit']['crop']['width'];
-					$output_height = $image['fit']['crop']['height'];
-					$x_pos         = $image['fit']['crop']['x'];
-					$y_pos         = $image['fit']['crop']['y'];
-					
-					$this->jpeg->crop($save_path, $output_width, $output_height, $x_pos, $y_pos, $jpeg_quality);
-				}
+				$this->jpeg->crop($save_path, $output_width, $output_height, $x_pos, $y_pos, $jpeg_quality);
 			}
 		}
 	}

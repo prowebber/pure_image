@@ -15,13 +15,22 @@ $img_name = '\original-wide.jpg';
 
 $pure_image = new pure_image\Main();
 $pure_image->add->image($img_dir . $img_name);
+//$pure_image->out->image([
+//	'method'    => 'fit',
+//	'width'     => '250',
+//	'height'    => '250',
+//	'quality'   => 65,
+//	'save_path' => $img_dir . '\test-fit-a.jpg',
+//]);
+
 $pure_image->out->image([
-	'method'    => 'fit',
+	'method'    => 'cover',
 	'width'     => '250',
 	'height'    => '250',
 	'quality'   => 65,
-	'save_path' => $img_dir . '\test-fit-a.jpg',
+	'save_path' => $img_dir . '\test-cover-b.jpg',
 ]);
+
 
 $pure_image->showDebug();
 $pure_image->save->image();
