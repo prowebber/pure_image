@@ -17,6 +17,8 @@ use pure_image\helper\Helper__Common;
 class Apps__Set_Output{
 	//---------------	Class-Wide Variables	-------------
 	private $params;
+	private $ch;
+	private $helper;
 	//---------------	Injected Classes	-----------------
 	//---------------	Added Classes		-----------------
 	
@@ -31,17 +33,39 @@ class Apps__Set_Output{
 	
 	
 	
+	public function scale($params){
+		$this->image($params, 'scale');
+	}
+	
+	
+	
+	public function cover($params){
+		$this->image($params, 'cover');
+	}
+	
+	
+	
+	public function compress($params){
+		$this->image($params, 'compress');
+	}
+	
+	
+	public function fit($params){
+		$this->image($params, 'fit');
+	}
+	
+	
+	
 	/**
 	 * Apps__Set_Output Controller Function
 	 */
-	public function image($params){
+	private function image($params, $method){
 		if(!$this->ch->errorFree()) return FALSE;               # Don't continue if an error exists
 		
 		// Get source image info
 		$source_img_type = $this->ch->source['file_type'];      # The type of image file e.g. jpg, png, etc.
 		
 		// Get the output params
-		$method    = $params['method'] ?? NULL;
 		$width     = $params['width'] ?? NULL;
 		$height    = $params['height'] ?? NULL;
 		$save_path = $params['save_path'] ?? NULL;
@@ -49,8 +73,8 @@ class Apps__Set_Output{
 		# See if the user specified any optional params
 		$output_img_type = $params['output_type'] ?? $source_img_type;                      # Use the type specified by the user; default to the input filetype if not specified
 		$output_img_type = trim(strtolower($output_img_type));                              # Format the output image type
-		$user_quality    = $params['quality'];                                              # Get the quality specified by the user
-		$quality         = $this->helper->getQuality($output_img_type, $user_quality);              # Get the quality level for the image format
+		$user_quality    = $params['quality'] ?? NULL;                                      # Get the quality specified by the user
+		$quality         = $this->helper->getQuality($output_img_type, $user_quality);      # Get the quality level for the image format
 		
 		# Get the save location info
 		$path_info    = pathinfo($save_path);                                               # Get file info
@@ -109,6 +133,9 @@ class Apps__Set_Output{
 		if($method == 'compress'){
 			$this->calcCompress();
 		}
+		elseif($method == 'scale'){
+			$this->calcScale();
+		}
 		elseif($method == 'fit'){
 			$this->calcFit();
 		}
@@ -117,6 +144,57 @@ class Apps__Set_Output{
 		}
 		
 		$this->ch->output[] = $this->params;            # Add to the output
+	}
+	
+	
+	
+	private function calcScale(){
+		$width_source  = $this->ch->source['width_px'];
+		$height_source = $this->ch->source['height_px'];
+		$width_out     = $this->params['width_px'];
+		$height_out    = $this->params['height_px'];
+		
+		// Verify only one side is specified
+		if(!empty($width_out) && !empty($height_out)){
+			$this->ch->addErr("Only the width or height can be specified with 'scale', both are currently set.");
+			return FALSE;
+		}
+		
+		// If scaling by width
+		if(!empty($width_out)){
+			# Get the height if the image was scaled down to fit the width
+			$ratio         = $width_source / $width_out;
+			$needed_height = $height_source / $ratio;
+			
+			$this->params['rules']['calc_dimensions']['ratio']  = $ratio;
+			$this->params['rules']['calc_dimensions']['width']  = $width_out;           # Use the width out the user specified
+			$this->params['rules']['calc_dimensions']['height'] = $needed_height;       # Use the height out the user specified
+			
+			# The final height needs to be even and cannot be a decimal
+			$set_height = floor($needed_height);
+			
+			# Since the image does not need to keep aspect ratio, round down to the nearest pixel @todo test this theory
+			$this->params['rules']['resize']['width']  = $width_out;
+			$this->params['rules']['resize']['height'] = $set_height;
+		}
+		
+		// If scaling by height
+		else{
+			# Get the width if the image was scaled down to fit the height
+			$ratio        = $height_source / $height_out;
+			$needed_width = $width_source / $ratio;
+			
+			$this->params['rules']['calc_dimensions']['ratio']  = $ratio;
+			$this->params['rules']['calc_dimensions']['width']  = $needed_width;
+			$this->params['rules']['calc_dimensions']['height'] = $height_out;      # Use the height out the user specified
+			
+			# The final width needs to be even and cannot be a decimal
+			$set_width = floor($needed_width);
+			
+			# Since the image does not need to keep aspect ratio, round down to the nearest pixel
+			$this->params['rules']['resize']['width']  = $set_width;
+			$this->params['rules']['resize']['height'] = $height_out;
+		}
 	}
 	
 	

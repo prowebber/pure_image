@@ -48,8 +48,7 @@ $pimage->add->image('/abs_path/image.jpg');
 This is where you specify the resizing method, the name and location of the output image, and additional
 params if needed.
 ```php
-$pimage->out->image([
-	'method'      => 'compress',
+$pimage->out->compress([
 	'save_path'   => '/output_dir/file_name.jpg',
 ]);
 ```
@@ -70,8 +69,9 @@ $pimage->save->image();
 |   Method   | Description                                                                                                  |
 |:----------:|:-------------------------------------------------------------------------------------------------------------|
 | `compress` | Don't resize the image; compress only                                                                        |
-|   `fit`    | Shrink the image so both the width and height fit within the dimensions specified                            |
 |  `cover`   | Shrink the image so the width and height are the exact dimensions specified. The final image may be cropped. |
+|   `fit`    | Shrink the image so both the width and height fit within the dimensions specified                            |
+|  `scale`   | Scale the image to a specified width or height.  Keep aspect ratio.                                          |
 
 
 ### Image Compression/Quality
@@ -91,70 +91,166 @@ setting blank or set it to `0`, the script will fallback to its default value. \
 |   5   | Highest compression  | Poor    |       35        |       8        |
 
 
-
 ## Pure Image Methods
+Below are the different ways Pure Image can format the output image:
 
-### Fit
-The image is resized so both the width and height will fit inside the dimensions specified.  The output image will maintain
-the original aspect ratio.
+* [Compress](#compress) - Only compress the image.  Do not scale or resize.
+* [Cover](#cover) - Resize and crop the output image so it is the exact width and height specified.
+* [Fit](#fit) - Resize the output image so it will fit inside the dimensions specified while maintaining aspect ratio.
+* Scale - Create an image with the specified width or height.  Keep the aspect ratio.
 
-**All Params**
 
-| Param       | Type        | Required | Description                                                                                  |
-|:------------|:------------|:--------:|:---------------------------------------------------------------------------------------------|
-| 'width'     | _int_       |   Yes    | The maximum width (px) of the image after resized                                            |
-| 'height'    | _int_       |   Yes    | The maximum height (px) of the image after resized                                           |
-| 'quality'   | _int\|null_ |    No    | The desired compression/quality level. [See Compression Settings](#image-compressionquality) |
-| 'save_path' | _string_    |   Yes    | The absolute path of the output file.                                                        |
+### Compress
+Compress the image.  Do not scale or resize the output image.
 
-**Example Code**
-```
-$pimage = new pure_image\Main();
-$pimage->add->image('/home/user/original.jpg');
-$pimage->out->image([
-	'method'    => 'fit',
-	'width'     => 250,
-	'height'    => 250,
-	'quality'   => 0,
-	'save_path' => '/home/user/resized.jpg,
-]);
-```
----
+**Options**
 
-### Cover
-The image is resized to the exact width and height specified.  The image will be cropped if the
-original aspect ratio cannot be kept at the specified size.
-
-**Cover Params**
-
-| Param         | Type     | Required | Description                                                                                                                                                         |
-|:--------------|:---------|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 'method'      | _string_ | Required | How you want the image resized                                                                                                                                      |
-| 'width'       | _int_    | Required | The maximum width (px) of the image after resized                                                                                                                   |
-| 'height'      | _int_    | Required | The maximum height (px) of the image after resized                                                                                                                  |
-| 'save_path'   | _string_ | Required | The absolute path of the output file.                                                                                                                               |
-| 'quality'     | _int_    | Optional | Scale of 0-100. `0` is the most compressed (poorest quality & smallest filesize).  `100` is least compressed (best quality & largest filesize).  65 is recommended. |
-| 'output_type' | _string_ | Optional | (jpg\|png) The type of image you want this converted to or saved as.                                                                                                |
+| Param         | Type     | Required | Description                                                                                                                   |
+|:--------------|:---------|:--------:|:------------------------------------------------------------------------------------------------------------------------------|
+| 'save_path'   | _string_ |   Yes    | The absolute path of the output file.                                                                                         |
+| 'quality'     | _int_    | Optional | The desired compression/quality level. [See Compression Settings](#image-compressionquality)                                  |
+| 'output_type' | _string_ | Optional | (jpg\|png) The type of image you want this converted to or saved as. (Uses the filetype of the source image if not specified) |
 
 **Example Request**
 ```php
 $pimage = new pure_image\Main();
 $pimage->add->image('/home/user/original.jpg');
-$pimage->out->image([
-	'method'    => 'cover',
-	'width'     => 250,
-	'height'    => 250,
-	'quality'   => 65,
+$pimage->out->compress([
+	'quality'   => 3,
 	'save_path' => '/home/user/resized.jpg,
 ]);
+$pimage->save->image();
 ```
+
+### Cover
+The image is resized to the exact width and height specified.  The image will be cropped if the
+original aspect ratio cannot be kept at the specified size.
+
+**Options**
+
+| Param         | Type     | Required | Description                                                                                                                   |
+|:--------------|:---------|:--------:|:------------------------------------------------------------------------------------------------------------------------------|
+| 'width'       | _int_    |   Yes    | The maximum width (px) of the image after resized                                                                             |
+| 'height'      | _int_    |   Yes    | The maximum height (px) of the image after resized                                                                            |
+| 'save_path'   | _string_ |   Yes    | The absolute path of the output file.                                                                                         |
+| 'quality'     | _int_    | Optional | The desired compression/quality level. [See Compression Settings](#image-compressionquality)                                  |
+| 'output_type' | _string_ | Optional | (jpg\|png) The type of image you want this converted to or saved as. (Uses the filetype of the source image if not specified) |
+
+**Example Request**
+```php
+$pimage = new pure_image\Main();
+$pimage->add->image('/home/user/original.jpg');
+$pimage->out->cover([
+	'width'     => 250,
+	'height'    => 250,
+	'quality'   => 3,
+	'save_path' => '/home/user/resized.jpg,
+]);
+$pimage->save->image();
+```
+
+
+### Fit
+The image is resized so both the width and height will fit inside the dimensions specified.  The output image will maintain
+the original aspect ratio.
+
+**Options**
+
+| Param         | Type        | Required | Description                                                                                                                   |
+|:--------------|:------------|:--------:|:------------------------------------------------------------------------------------------------------------------------------|
+| 'width'       | _int_       |   Yes    | The maximum width (px) of the image after resized                                                                             |
+| 'height'      | _int_       |   Yes    | The maximum height (px) of the image after resized                                                                            |
+| 'save_path'   | _string_    |   Yes    | The absolute path of the output file.                                                                                         |
+| 'quality'     | _int\|null_ | Optional | The desired compression/quality level. [See Compression Settings](#image-compressionquality)                                  |
+| 'output_type' | _string_    | Optional | (jpg\|png) The type of image you want this converted to or saved as. (Uses the filetype of the source image if not specified) |
+
+**Example Code**
+```php
+$pimage = new pure_image\Main();
+$pimage->add->image('/home/user/original.jpg');
+$pimage->out->fit([
+	'width'     => 250,
+	'height'    => 250,
+	'quality'   => 3,
+	'save_path' => '/home/user/resized.jpg,
+]);
+$pimage->save->image();
+```
+---
+
+### Scale
+Scale the image by its width or height.  The final image will be the exact width _or_ height specified and will
+keep its original aspect ratio.
+
+**Options**
+
+| Param         | Type     | Required | Description                                                                                                                   |
+|:--------------|:---------|:--------:|:------------------------------------------------------------------------------------------------------------------------------|
+| 'width'       | _int_    |  Maybe   | The maximum width (px) of the image after resized                                                                             |
+| 'height'      | _int_    |  Maybe   | The maximum height (px) of the image after resized                                                                            |
+| 'save_path'   | _string_ |   Yes    | The absolute path of the output file.                                                                                         |
+| 'quality'     | _int_    | Optional | The desired compression/quality level. [See Compression Settings](#image-compressionquality)                                  |
+| 'output_type' | _string_ | Optional | (jpg\|png) The type of image you want this converted to or saved as. (Uses the filetype of the source image if not specified) |
+
+**Example Request**
+```php
+$pimage = new pure_image\Main();
+$pimage->add->image('/home/user/original.jpg');
+$pimage->out->scale([
+	'width'     => 250,
+	'height'    => 250,
+	'quality'   => 3,
+	'save_path' => '/home/user/resized.jpg,
+]);
+$pimage->save->image();
+```
+
+
+
 
 ## Advanced
 
-### Debug
+### Saving Multiple Outputs
+You can create multiple output images by making additional calls to the `$pimage->out` method with the
+desired params.  When you are ready to create the images, just call the `$pimage->save->images()` method
+and it will create all the images.
 
 ```
-ID
+$pimage->add->image('/home/user/original.jpg');
+
+// Compress the image 
+$pimage->out->compress([
+	'quality'   => 3,
+	'save_path' => '/home/user/compressed.jpg,
+]);
+
+// Create an image to fit the specified params
+$pimage->out->fit([
+	'width'     => 300,
+	'height'    => 200,
+	'quality'   => 3,
+	'save_path' => '/home/user/resized.jpg,
+]);
+
+// Create another image to fit the specified params
+$pimage->out->fit([
+	'width'     => 600,
+	'height'    => 400,
+	'quality'   => 3,
+	'save_path' => '/home/user/resized.jpg,
+]);
+
+// Create all images
+$pimage->save->image();
+```
+
+
+### Debug
+You can see debug info by running the following command: `$pimage->showDebug();`
+
+**Debug Description**
+```
+[ID]
 |-- method
 |-- width_px
 |-- height_px

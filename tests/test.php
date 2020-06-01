@@ -15,10 +15,22 @@ $pimage = new pure_image\Main();
 $pimage->add->image($img_dir . $img_name);
 
 /* Compress Only */
-$pimage->out->image([
-	'method'      => 'compress',
-	'quality'     => 3,
-	'save_path'   => $img_dir . '\compress-only-3.jpg',
+//$pimage->out->compress([
+//	'quality'   => 3,
+//	'save_path' => $img_dir . '\compress-only-3.jpg',
+//]);
+
+/* Cover */
+//$pimage->out->cover([
+//	'width'     => 300,
+//	'height'    => 200,
+//	'save_path' => $img_dir . '\cover.jpg',
+//]);
+
+/* Scale */
+$pimage->out->scale([
+	'height'     => 300,
+	'save_path' => $img_dir . '\scale-height.jpg',
 ]);
 
 
