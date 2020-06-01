@@ -25,6 +25,15 @@ class Helper__Common {
 	}
 	
 	
+	public function formatFileType($raw_filetype){
+		$filetype = trim(strtolower($raw_filetype));
+		
+		if($filetype == 'jpeg') $filetype = 'jpg';          # Correct alias
+		
+		return $filetype;
+	}
+	
+	
 	public function getImageTypeByMime($mime){
 		if(!isset($this->ch->allowed_mimes[$mime])){
 			$this->ch->addErr("The mime '$mime' is not yet supported.");

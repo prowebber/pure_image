@@ -72,7 +72,7 @@ class Apps__Set_Output{
 		
 		# See if the user specified any optional params
 		$output_img_type = $params['output_type'] ?? $source_img_type;                      # Use the type specified by the user; default to the input filetype if not specified
-		$output_img_type = trim(strtolower($output_img_type));                              # Format the output image type
+		$output_img_type = $this->helper->formatFileType($output_img_type);                 # Format the filetype
 		$user_quality    = $params['quality'] ?? NULL;                                      # Get the quality specified by the user
 		$quality         = $this->helper->getQuality($output_img_type, $user_quality);      # Get the quality level for the image format
 		

@@ -36,6 +36,7 @@ class Channel{
 		
 		// Specify the allowed mime and their file type
 		$this->allowed_mimes = [
+			'image/gif'  => 'gif',
 			'image/jpeg' => 'jpg',
 			'image/png'  => 'png',
 		];
@@ -80,7 +81,7 @@ class Channel{
 			$max_allowed_size = round($this->rules['max_source_image_size_bytes'] / 1048576, 2);
 			$cur_input_size   = $this->source['size_mb'];
 			
-			$this->addErr("The current image is: ".$cur_input_size." MB.  The maximum allowed size is: ".$max_allowed_size." MB.");
+			$this->addErr("The current image is: " . $cur_input_size . " MB.  The maximum allowed size is: " . $max_allowed_size . " MB.");
 		}
 	}
 	

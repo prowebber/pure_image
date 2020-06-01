@@ -31,6 +31,9 @@ class Generate__Image{
 		elseif($source_type == 'png'){                                      # Png images
 			$input = imagecreatefrompng($source_path);                      # Copy the source image
 		}
+		elseif($source_type == 'gif'){                                      # Gif images
+			$input = imagecreatefromgif($source_path);                      # Copy the source image
+		}
 		
 		# Copy the image and resize + resample
 		imagecopyresampled($output, $input, 0, 0, 0, 0, $output_width, $output_height, $source_width, $source_height);
@@ -42,6 +45,9 @@ class Generate__Image{
 		}
 		else if($output_type == 'png'){
 			imagepng($output, $save_path, $quality);
+		}
+		elseif($source_type == 'gif'){                                      # Gif images
+			imagegif($output, $save_path);
 		}
 		
 		# Clear the image objects from PHP memory
@@ -58,6 +64,9 @@ class Generate__Image{
 		}
 		elseif($source_type == 'png'){                                      # Png images
 			$input = imagecreatefrompng($source_path);                      # Copy the source image
+		}
+		elseif($source_type == 'gif'){                                      # Gif images
+			$input = imagecreatefromgif($source_path);                      # Copy the source image
 		}
 		
 		// Crop the image
@@ -76,6 +85,9 @@ class Generate__Image{
 		}
 		elseif($source_type == 'png'){                                      # Png images
 			imagepng($cropped_img, $source_path, $quality);                 # Overwrite the source image with the cropped image
+		}
+		elseif($source_type == 'gif'){                                      # Gif images
+			imagegif($cropped_img, $source_path);
 		}
 	}
 	

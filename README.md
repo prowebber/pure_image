@@ -19,6 +19,14 @@ The following requirements must be met before using:
 * PHP >=7.3
 * PHP GD (https://www.php.net/manual/en/book.image.php)
 
+#### Supported Images
+Pure Image can read, write, and convert between the following image formats:
+
+* Gif (.gif)
+* Jpeg (.jpg, .jpeg)
+* Png (.png)
+
+
 ### Basic Usage
 Pure Image is easy to use and only requires 4 steps:
 1. A call to init Pure Image
@@ -279,7 +287,7 @@ $pimage->showErrors();
 ````
 &nbsp;
 
-**Return an array of errors**
+**Return an array of errors** \
 If any errors exist, this will return an associative array of the errors.  The key/index will be
 the MD5 value of the error message.
 
@@ -289,7 +297,12 @@ $pimage->getErrors();
 &nbsp;
 
 ### Debug
-You can see debug info by running the following command: `$pimage->showDebug();`
+You can see debug info by running the following command which will dump all the debug
+info to the screen.
+
+```php
+$pimage->showDebug();
+```
 
 **Debug Description**
 ```
