@@ -12,7 +12,7 @@
   "minimum-stability": "dev",
   "autoload": {
     "psr-4": {
-      "pure_image\\": "src/"
+      "pure_image\\": "src"
     }
   },
   "require": {
