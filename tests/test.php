@@ -6,7 +6,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $img_dir = __DIR__ . '/img_source';
 $img_name = '\water-original.jpg';
 
-$pimage = new pure_image\Main();                # Init Pure Image
+$pimage = new \pure_image\PureImage();          # Init Pure Image
 $pimage->setMaxImageSize(10000000);             # Set the max allowed image size (for the source image)
 $pimage->add->image($img_dir . $img_name);      # Specify the source image
 

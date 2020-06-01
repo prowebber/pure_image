@@ -41,7 +41,7 @@ Pure Image is easy to use and only requires 4 steps:
 ```php
 require_once __DIR__ . 'path_to_composer/autoload.php';
 
-$pimage = new pure_image\Main();
+$pimage = new pure_image\PureImage();
 ```
 &nbsp;
 
@@ -123,7 +123,7 @@ Compress the image.  Do not scale or resize the output image.
 
 **Example Request**
 ```php
-$pimage = new pure_image\Main();
+$pimage = new pure_image\PureImage();
 $pimage->add->image('/home/user/original.jpg');
 $pimage->out->compress([
 	'quality'   => 3,
@@ -149,7 +149,7 @@ original aspect ratio cannot be kept at the specified size.
 
 **Example Request**
 ```php
-$pimage = new pure_image\Main();
+$pimage = new pure_image\PureImage();
 $pimage->add->image('/home/user/original.jpg');
 $pimage->out->cover([
 	'width'     => 250,
@@ -177,7 +177,7 @@ the original aspect ratio.
 
 **Example Code**
 ```php
-$pimage = new pure_image\Main();
+$pimage = new pure_image\PureImage();
 $pimage->add->image('/home/user/original.jpg');
 $pimage->out->fit([
 	'width'     => 250,
@@ -205,7 +205,7 @@ keep its original aspect ratio.
 
 **Example Request**
 ```php
-$pimage = new pure_image\Main();
+$pimage = new pure_image\PureImage();
 $pimage->add->image('/home/user/original.jpg');
 $pimage->out->scale([
 	'width'     => 250,
