@@ -256,19 +256,37 @@ exceeded an error will be thrown.
 ```php
 $pimage->setMaxImageSize(10000000);
 ```
-
+&nbsp;
 
 ### Errors
 Pure Image id designed to catch all errors before generating any output images.  If an error is detected it  
 will store the error message and return false.  Below are different ways to check errors: \
 &nbsp;
 
-| Call command              | Description                                                                                           |
-|:--------------------------|:------------------------------------------------------------------------------------------------------|
-| `$pimage->isErrorFree();` | Returns `TRUE` if there are no errors; `FALSE` if errors exist.                                       |
-| `$pimage->showErrors();`  | If errors exist it will echo them to the screen                                                       |
-| `$pimage->getErrors()`    | Returns an associative array of each error message with the MD5 hash of the error message as the key. |
+**Check if any errors exist** \
+The following will return `TRUE` if there are no errors; `FALSE` if errors exist.
 
+```php
+$pimage->isErrorFree();
+```
+&nbsp;
+
+**Echo errors to the screen** \
+If any errors exist, this will echo/dump them to the screen.
+
+```php
+$pimage->showErrors();
+````
+&nbsp;
+
+**Return an array of errors**
+If any errors exist, this will return an associative array of the errors.  The key/index will be
+the MD5 value of the error message.
+
+```php
+$pimage->getErrors();
+````
+&nbsp;
 
 ### Debug
 You can see debug info by running the following command: `$pimage->showDebug();`
