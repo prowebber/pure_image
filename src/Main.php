@@ -39,17 +39,47 @@ class Main{
 	
 	
 	
+	/**
+	 * Show all the parameters
+	 */
 	public function showDebug(){
 		echo "<h3>Source</h3><pre>" . print_r($this->ch->source, TRUE) . "</pre>";
 		echo "<h3>Output</h3><pre>" . print_r($this->ch->output, TRUE) . "</pre>";
 	}
 	
+	
+	
+	/**
+	 * Check if the script is currently error free
+	 *
+	 * @return bool True if there are no errors; false if errors exist
+	 */
+	public function isErrorFree(){
+		return $this->ch->errorFree();
+	}
+	
+	
+	
+	/**
+	 * If there are error messages, echo them to the screen
+	 */
 	public function showErrors(){
 		$errors = $this->ch->getErrors();
 		
 		if($errors){
 			echo "<b>Errors</b><pre>".print_r($errors, true)."</pre>";
 		}
+	}
+	
+	
+	
+	/**
+	 * Return an associative array of error messages
+	 *
+	 * @return array
+	 */
+	public function getErrors(){
+		return $this->ch->getErrors();
 	}
 }
 

@@ -47,6 +47,7 @@ class Apps__Add_Image{
 		$size_mb         = $this->helper->bytesToMb($image_size);
 		$file_type       = $this->helper->getImageTypeByMime($image_mime);
 		$path_info       = pathinfo($path);                     # Get file info
+		$this->ch->checkInputFileSize();                        # Verify the input file is not too large
 		if(!$this->ch->errorFree()) return FALSE;               # Don't continue if an error exists
 		
 		// Record source image properties

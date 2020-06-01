@@ -54,5 +54,5 @@ $pimage->out->scale([
 $pimage->showDebug();
 $pimage->save->image();
 $pimage->showErrors();
-
+$pimage->isErrorFree();
 

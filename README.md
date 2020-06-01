@@ -97,7 +97,7 @@ Below are the different ways Pure Image can format the output image:
 * [Compress](#compress) - Only compress the image.  Do not scale or resize.
 * [Cover](#cover) - Resize and crop the output image so it is the exact width and height specified.
 * [Fit](#fit) - Resize the output image so it will fit inside the dimensions specified while maintaining aspect ratio.
-* Scale - Create an image with the specified width or height.  Keep the aspect ratio.
+* [Scale](#scale) - Create an image with the specified width or height.  Keep the aspect ratio.
 
 
 ### Compress
@@ -121,6 +121,7 @@ $pimage->out->compress([
 ]);
 $pimage->save->image();
 ```
+---
 
 ### Cover
 The image is resized to the exact width and height specified.  The image will be cropped if the
@@ -148,7 +149,7 @@ $pimage->out->cover([
 ]);
 $pimage->save->image();
 ```
-
+---
 
 ### Fit
 The image is resized so both the width and height will fit inside the dimensions specified.  The output image will maintain
@@ -210,12 +211,12 @@ $pimage->save->image();
 
 ## Advanced
 
-### Saving Multiple Outputs
+### Creating Multiple Output Images
 You can create multiple output images by making additional calls to the `$pimage->out` method with the
 desired params.  When you are ready to create the images, just call the `$pimage->save->images()` method
 and it will create all the images.
 
-```
+```php
 $pimage->add->image('/home/user/original.jpg');
 
 // Compress the image 
@@ -245,15 +246,27 @@ $pimage->save->image();
 ```
 
 
+### Errors
+Pure Image id designed to catch all errors before generating any output images.  If an error is detected it  
+will store the error message and return false.  Below are different ways to check errors: \
+&nbsp;
+
+| Call command              | Description                                                                                           |
+|:--------------------------|:------------------------------------------------------------------------------------------------------|
+| `$pimage->isErrorFree();` | Returns `TRUE` if there are no errors; `FALSE` if errors exist.                                       |
+| `$pimage->showErrors();`  | If errors exist it will echo them to the screen                                                       |
+| `$pimage->getErrors()`    | Returns an associative array of each error message with the MD5 hash of the error message as the key. |
+
+
 ### Debug
 You can see debug info by running the following command: `$pimage->showDebug();`
 
 **Debug Description**
 ```
-[ID]
-|-- method
-|-- width_px
-|-- height_px
+[ID]                        ** The Array index of the output image
+|-- method                  ** {String} The compression/resize method to use
+|-- width_px                ** {Int} The desired width of the output image
+|-- height_px               ** {Int} The desired height of the output image
 |-- save_path
 |-- quality
 |-- output_type

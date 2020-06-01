@@ -75,6 +75,17 @@ class Channel{
 	
 	
 	
+	public function checkInputFileSize(){
+		if($this->source['size_bytes'] > $this->rules['max_source_image_size_bytes']){
+			$max_allowed_size = round($this->rules['max_source_image_size_bytes'] / 1048576, 2);
+			$cur_input_size   = $this->source['size_mb'];
+			
+			$this->addErr("The current image is: ".$cur_input_size." MB.  The maximum allowed size is: ".$max_allowed_size." MB.");
+		}
+	}
+	
+	
+	
 	public function checkAllowedFileTypes($file_type){
 		$allowed_file_types = array_flip($this->allowed_mimes);
 		
