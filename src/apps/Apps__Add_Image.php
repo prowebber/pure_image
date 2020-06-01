@@ -44,16 +44,18 @@ class Apps__Add_Image{
 		$image_height    = $image_size_info[1] ?? NULL;
 		$image_mime      = $image_size_info['mime'] ?? NULL;
 		$image_size      = filesize($path);
-		$image_name      = $file = basename($path);
 		$size_mb         = $this->helper->bytesToMb($image_size);
 		$file_type       = $this->helper->getImageTypeByMime($image_mime);
+		$path_info       = pathinfo($path);                     # Get file info
+		if(!$this->ch->errorFree()) return FALSE;               # Don't continue if an error exists
 		
 		// Record source image properties
-		$this->ch->source['img_name']   = $image_name;
 		$this->ch->source['width_px']   = $image_width;
 		$this->ch->source['height_px']  = $image_height;
 		$this->ch->source['img_mime']   = $image_mime;
 		$this->ch->source['abs_path']   = $path;
+		$this->ch->source['file_name']  = $path_info['basename'];
+		$this->ch->source['img_name']   = $path_info['filename'];
 		$this->ch->source['file_type']  = $file_type;
 		$this->ch->source['size_bytes'] = $image_size;
 		$this->ch->source['size_mb']    = $size_mb;

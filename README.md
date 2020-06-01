@@ -14,6 +14,15 @@ The following requirements must be met before using:
 * PHP GD (https://www.php.net/manual/en/book.image.php)
 
 
+## Params
+
+### Image Compression/Quality
+
+| Level | Description                                             |
+|:-----:|:--------------------------------------------------------|
+|   0   | No compression, same as input                           |
+|   1   | Least compression (higher filesize, but better quality) |
+|  10   | Most compression (smallest filesize, poorest quality)   |
 
 ## Usage
 
@@ -21,7 +30,7 @@ The following requirements must be met before using:
 ```
 // You will need to place Pure Image's composer autoload statement here
 
-$pure_image = new pure_image\Main();
+$pimage = new pure_image\Main();
 ```
 
 
@@ -29,7 +38,7 @@ $pure_image = new pure_image\Main();
 1. Specify the image you want to format
 
 ```
-$pure_image->add->image($img_path);
+$pimage->add->image($img_path);
 ```
 
 
@@ -40,55 +49,58 @@ $pure_image->add->image($img_path);
 |  `fit`  | required | required  | Shrink the image so both the width and height fit within the dimensions specified                            |
 | `cover` | required | required  | Shrink the image so the width and height are the exact dimensions specified. The final image may be cropped. |
 
-
+---
 ### Fit
 The image is resized so both the width and height will fit inside the dimensions specified.  The output image will maintain
 the original aspect ratio.
 
 **Fit Params**
 
-| Param       | Type     | Description                                                                                                                                                          |
-|:------------|:---------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 'width'     | _int_    | The maximum width (px) of the image after resized                                                                                                                    |
-| 'height'    | _int_    | The maximum height (px) of the image after resized                                                                                                                   |
-| 'quality'   | _int_    | Scale of 0-100. `0` is the most compressed (poorest quality & smallest filesize).  `100` is least compression (best quality & largest filesize).  65 is recommended. |
-| 'save_path' | _string_ | The absolute path of the output file.                                                                                                                                |
+| Param       | Type     | Description                                                                                                                                                         |
+|:------------|:---------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 'width'     | _int_    | The maximum width (px) of the image after resized                                                                                                                   |
+| 'height'    | _int_    | The maximum height (px) of the image after resized                                                                                                                  |
+| 'quality'   | _int_    | Scale of 0-100. `0` is the most compressed (poorest quality & smallest filesize).  `100` is least compressed (best quality & largest filesize).  65 is recommended. |
+| 'quality'   | _int_    | The desired compression/quality level.                                                                                                                              |
+| 'save_path' | _string_ | The absolute path of the output file.                                                                                                                               |
 
 **Example Request**
 ```
-$pure_image = new pure_image\Main();
-$pure_image->add->image('/home/user/original.jpg');
-$pure_image->out->image([
+$pimage = new pure_image\Main();
+$pimage->add->image('/home/user/original.jpg');
+$pimage->out->image([
 	'method'    => 'fit',
-	'width'     => '250',
-	'height'    => '250',
+	'width'     => 250,
+	'height'    => 250,
 	'quality'   => 65,
 	'save_path' => '/home/user/resized.jpg,
 ]);
 ```
 
-
+---
 ### Cover
 The image is resized to the exact width and height specified.  The image will be cropped if the
 original aspect ratio cannot be kept at the specified size.
 
 **Cover Params**
 
-| Param       | Type     | Description                                                                                                                                                          |
-|:------------|:---------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 'width'     | _int_    | The maximum width (px) of the image after resized                                                                                                                    |
-| 'height'    | _int_    | The maximum height (px) of the image after resized                                                                                                                   |
-| 'quality'   | _int_    | Scale of 0-100. `0` is the most compressed (poorest quality & smallest filesize).  `100` is least compression (best quality & largest filesize).  65 is recommended. |
-| 'save_path' | _string_ | The absolute path of the output file.                                                                                                                                |
+| Param         | Type     | Required | Description                                                                                                                                                         |
+|:--------------|:---------|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 'method'      | _string_ | Required | How you want the image resized                                                                                                                                      |
+| 'width'       | _int_    | Required | The maximum width (px) of the image after resized                                                                                                                   |
+| 'height'      | _int_    | Required | The maximum height (px) of the image after resized                                                                                                                  |
+| 'save_path'   | _string_ | Required | The absolute path of the output file.                                                                                                                               |
+| 'quality'     | _int_    | Optional | Scale of 0-100. `0` is the most compressed (poorest quality & smallest filesize).  `100` is least compressed (best quality & largest filesize).  65 is recommended. |
+| 'output_type' | _string_ | Optional | (jpg\|png) The type of image you want this converted to or saved as.                                                                                                |
 
 **Example Request**
 ```php
-$pure_image = new pure_image\Main();
-$pure_image->add->image('/home/user/original.jpg');
-$pure_image->out->image([
+$pimage = new pure_image\Main();
+$pimage->add->image('/home/user/original.jpg');
+$pimage->out->image([
 	'method'    => 'cover',
-	'width'     => '250',
-	'height'    => '250',
+	'width'     => 250,
+	'height'    => 250,
 	'quality'   => 65,
 	'save_path' => '/home/user/resized.jpg,
 ]);

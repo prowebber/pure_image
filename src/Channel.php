@@ -19,7 +19,8 @@ class Channel{
 		$this->errors = [];
 		
 		$this->source = [
-			'img_name'   => '',     # mount-everest.jpg
+			'file_name'  => '',     # mount-everest.jpg
+			'img_name'   => '',     # mount-everest
 			'img_mime'   => '',     # image/jpeg
 			'abs_path'   => '',     # C:\wamp64\tmp\php6492.tmp
 			'file_type'  => '',     # jpg
@@ -36,6 +37,7 @@ class Channel{
 		// Specify the allowed mime and their file type
 		$this->allowed_mimes = [
 			'image/jpeg' => 'jpg',
+			'image/png'  => 'png',
 		];
 		
 		$this->rules = [
@@ -53,6 +55,22 @@ class Channel{
 	public function errorFree(){
 		if(empty($this->errors)) return TRUE;
 		return FALSE;
+	}
+	
+	
+	
+	public function getErrors(){
+		return $this->errors;
+	}
+	
+	
+	
+	public function checkAllowedFileTypes($file_type){
+		$allowed_file_types = array_flip($this->allowed_mimes);
+		
+		if(!isset($allowed_file_types[$file_type])){
+			$this->addErr("The filetype: '$file_type' is not supported");
+		}
 	}
 	
 	

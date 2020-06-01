@@ -4,35 +4,33 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 
-$img_path = 'C:\Users\steve\Dropbox\machine\desktop\prowebber\pure_image\dev\animal.jpg';
-$img_path = 'C:\Users\steve\Dropbox\machine\desktop\prowebber\pure_image\dev\tall-image-test.jpg';
-
-
 $img_dir = 'C:\Users\steve\Dropbox\machine\desktop\prowebber\pure_image\dev';
 
 $img_name = '\original-tall.jpg';
-//$img_name = '\original-wide.jpg';
+$img_name = '\original-wide.jpg';
+//$img_name = '\full-width-png.png';
 
-$pure_image = new pure_image\Main();
-$pure_image->add->image($img_dir . $img_name);
-$pure_image->out->image([
-	'method'    => 'fit',
-	'width'     => '250',
-	'height'    => '250',
-	'quality'   => 65,
-	'save_path' => $img_dir . '\test-fit-a.jpg',
+$pimage = new pure_image\Main();
+$pimage->add->image($img_dir . $img_name);
+$pimage->out->image([
+	'method'      => 'fit',
+	'width'       => '250',
+	'height'      => '250',
+	'quality'     => 65,
+	'output_type' => 'png',
+	'save_path'   => $img_dir . '\new-test-wide.jpg',
 ]);
 
-$pure_image->out->image([
-	'method'    => 'cover',
-	'width'     => '250',
-	'height'    => '250',
-	'quality'   => 65,
-	'save_path' => $img_dir . '\test-cover-tall.jpg',
-]);
+//$pimage->out->image([
+//	'method'    => 'cover',
+//	'width'     => '250',
+//	'height'    => '250',
+//	'quality'   => 65,
+//	'save_path' => $img_dir . '\test-cover-tall.jpg',
+//]);
 
-
-$pure_image->showDebug();
-$pure_image->save->image();
+$pimage->showDebug();
+$pimage->save->image();
+$pimage->showErrors();
 
 

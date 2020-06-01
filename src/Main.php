@@ -43,6 +43,14 @@ class Main{
 		echo "<h3>Source</h3><pre>" . print_r($this->ch->source, TRUE) . "</pre>";
 		echo "<h3>Output</h3><pre>" . print_r($this->ch->output, TRUE) . "</pre>";
 	}
+	
+	public function showErrors(){
+		$errors = $this->ch->getErrors();
+		
+		if($errors){
+			echo "<b>Errors</b><pre>".print_r($errors, true)."</pre>";
+		}
+	}
 }
 
 ?>

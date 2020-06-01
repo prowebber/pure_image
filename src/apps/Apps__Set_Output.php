@@ -37,18 +37,42 @@ class Apps__Set_Output{
 	public function image($params){
 		if(!$this->ch->errorFree()) return FALSE;               # Don't continue if an error exists
 		
+		// Get the params
+		
+		# Source image info
+		$source_img_type = $this->ch->source['file_type'];      # The type of image file e.g. jpg, png, etc.
+		
+		
+		# Get the required params
 		$method    = $params['method'] ?? NULL;
 		$width     = $params['width'] ?? NULL;
 		$height    = $params['height'] ?? NULL;
 		$save_path = $params['save_path'] ?? NULL;
-		$quality   = $params['quality'] ?? 65;
+		
+		# See if the user specified any optional params
+		$output_img_type = $params['output_type'] ?? $source_img_type;                      # Use the type specified by the user; default to the input filetype if not specified
+		$output_img_type = trim(strtolower($output_img_type));                              # Format the output image type
+		$user_quality    = $params['quality'];                                              # Get the quality specified by the user
+		$quality = $this->helper->getQuality($output_img_type, $user_quality);              # Get the quality level for the image format
+		
+		# Get the save location info
+		$path_info    = pathinfo($save_path);                                               # Get file info
+		$save_to_dir  = $path_info['dirname'];
+		$save_as_name = $path_info['filename'];
+		$save_path    = $save_to_dir . '/' . $save_as_name . '.' . $output_img_type;        # Set the correct name (with the correct file extension type)
+		
+		
+		// Validate
+		$this->ch->checkAllowedFileTypes($output_img_type);
+		if(!$this->ch->errorFree()) return FALSE;               # Don't continue if an error exists
 		
 		$this->params = [
-			'method'    => $method,
-			'width_px'  => $width,
-			'height_px' => $height,
-			'save_path' => $save_path,
-			'quality'   => $quality,
+			'method'      => $method,
+			'width_px'    => $width,
+			'height_px'   => $height,
+			'save_path'   => $save_path,
+			'quality'     => $quality,
+			'output_type' => $output_img_type,      # The type of image you want this file saved as
 			
 			'rules' => [
 				'is_crop_needed'  => FALSE,        # True if the image must be cropped to fit
