@@ -115,11 +115,11 @@ Compress the image.  Do not scale or resize the output image.
 
 **Options**
 
-| Param         | Type     | Required | Description                                                                                                                   |
-|:--------------|:---------|:--------:|:------------------------------------------------------------------------------------------------------------------------------|
-| 'save_path'   | _string_ |   Yes    | The absolute path of the output file.                                                                                         |
-| 'quality'     | _int_    | Optional | The desired compression/quality level. [See Compression Settings](#image-compressionquality)                                  |
-| 'output_type' | _string_ | Optional | (jpg\|png) The type of image you want this converted to or saved as. (Uses the filetype of the source image if not specified) |
+| Param         | Type     | Required | Description                                                                                                                        |
+|:--------------|:---------|:--------:|:-----------------------------------------------------------------------------------------------------------------------------------|
+| 'save_path'   | _string_ |   Yes    | The absolute path of the output file.                                                                                              |
+| 'quality'     | _int_    | Optional | The desired compression/quality level. [See Compression Settings](#image-compressionquality)                                       |
+| 'output_type' | _string_ | Optional | (jpg\|png\|gif) The type of image you want this converted to or saved as. (Uses the filetype of the source image if not specified) |
 
 **Example Request**
 ```php
@@ -145,7 +145,7 @@ original aspect ratio cannot be kept at the specified size.
 | 'height'      | _int_    |   Yes    | The maximum height (px) of the image after resized                                                                            |
 | 'save_path'   | _string_ |   Yes    | The absolute path of the output file.                                                                                         |
 | 'quality'     | _int_    | Optional | The desired compression/quality level. [See Compression Settings](#image-compressionquality)                                  |
-| 'output_type' | _string_ | Optional | (jpg\|png) The type of image you want this converted to or saved as. (Uses the filetype of the source image if not specified) |
+| 'output_type' | _string_ | Optional | (jpg\|png\|gif) The type of image you want this converted to or saved as. (Uses the filetype of the source image if not specified) |
 
 **Example Request**
 ```php
@@ -173,7 +173,7 @@ the original aspect ratio.
 | 'height'      | _int_       |   Yes    | The maximum height (px) of the image after resized                                                                            |
 | 'save_path'   | _string_    |   Yes    | The absolute path of the output file.                                                                                         |
 | 'quality'     | _int\|null_ | Optional | The desired compression/quality level. [See Compression Settings](#image-compressionquality)                                  |
-| 'output_type' | _string_    | Optional | (jpg\|png) The type of image you want this converted to or saved as. (Uses the filetype of the source image if not specified) |
+| 'output_type' | _string_    | Optional | (jpg\|png\|gif) The type of image you want this converted to or saved as. (Uses the filetype of the source image if not specified) |
 
 **Example Code**
 ```php
@@ -201,7 +201,7 @@ keep its original aspect ratio.
 | 'height'      | _int_    |  Maybe   | The maximum height (px) of the image after resized                                                                            |
 | 'save_path'   | _string_ |   Yes    | The absolute path of the output file.                                                                                         |
 | 'quality'     | _int_    | Optional | The desired compression/quality level. [See Compression Settings](#image-compressionquality)                                  |
-| 'output_type' | _string_ | Optional | (jpg\|png) The type of image you want this converted to or saved as. (Uses the filetype of the source image if not specified) |
+| 'output_type' | _string_ | Optional | (jpg\|png\|gif) The type of image you want this converted to or saved as. (Uses the filetype of the source image if not specified) |
 
 **Example Request**
 ```php
