@@ -33,23 +33,19 @@ class Apps__Create_Image{
 			'abs_path'  => $this->ch->source['abs_path'],
 		];
 		
-		echo "<hr>";
-		foreach($this->ch->output as $image){           # Loop through each image to be created
-			echo "<h3>Image</h3><pre>" . print_r($image, TRUE) . "</pre>";
-			
-			$is_crop_needed   = $image['rules']['is_crop_needed'];
-			$save_path        = $image['save_path'];
-			$quality          = $image['quality'];
-			$output_file_type = $image['output_type'];
-			$output_type      = $image['output_type'];
+		foreach($this->ch->output as $image){                   # Loop through each image to be created
+			$is_crop_needed = $image['rules']['is_crop_needed'];
+			$save_path      = $image['save_as']['file_path'];
+			$quality        = $image['quality'];
+			$file_type      = $image['save_as']['file_type'];
 			
 			// Resize the image
 			$output_width  = $image['rules']['resize']['width'];
 			$output_height = $image['rules']['resize']['height'];
 			
 			# Make and convert the image (if the source type has changed)
-			$this->gen_image->make($source_params, $source_type, $output_type, $output_width, $output_height, $save_path, $quality);
-			$new_source_type = $output_file_type;               # The source will always be the output type after the image has been made
+			$this->gen_image->make($source_params, $source_type, $file_type, $output_width, $output_height, $save_path, $quality);
+			$new_source_type = $file_type;                      # The source will always be the output type after the image has been made
 			
 			// If a crop is needed to fit the image
 			if($is_crop_needed){

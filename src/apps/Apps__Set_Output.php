@@ -78,11 +78,11 @@ class Apps__Set_Output{
 		$quality         = $this->helper->getQuality($output_img_type, $user_quality);      # Get the quality level for the image format
 		
 		# Get the save location info
-		$path_info    = pathinfo($save_path);                                               # Get file info
-		$save_to_dir  = $path_info['dirname'];
-		$save_as_name = $path_info['filename'];
-		$save_img_as  = $save_as_name . '.' . $output_img_type;                              # Set the correct name (with the correct file extension type)
-		$save_path    = $save_to_dir . '/' . $save_img_as;
+		$path_info   = pathinfo($save_path);                                               # Get file info
+		$save_to_dir = $path_info['dirname'];
+		$image_name  = $path_info['filename'];
+		$file_name   = $image_name . '.' . $output_img_type;                              # Set the correct name (with the correct file extension type)
+		$file_path   = $save_to_dir . '/' . $file_name;
 		
 		
 		// Validate
@@ -91,16 +91,19 @@ class Apps__Set_Output{
 		if(!$this->ch->errorFree()) return FALSE;               # Don't continue if an error exists
 		
 		$this->params = [
-			'method'      => $method,
-			'width_px'    => $width,
-			'height_px'   => $height,
-			'save_path'   => $save_path,
-			'save_img_as' => $save_img_as,
-			'quality'     => $quality,
-			'output_type' => $output_img_type,      # The type of image you want this file saved as
+			'method'    => $method,
+			'width_px'  => $width,                      # Desired width
+			'height_px' => $height,                     # Desired height
+			'quality'   => $quality,                    # 0-100 if jpg, 0-9 if png
+			'save_as'   => [
+				'file_type' => $output_img_type,        # jpg|png|gif
+				'img_name'  => $image_name,             # mount-everest
+				'file_name' => $file_name,              # mount-everest.jpg
+				'file_path' => $file_path,              # /home/user/mount-everest.jpg
+			],
 			
 			'rules' => [
-				'is_crop_needed'  => FALSE,        # True if the image must be cropped to fit
+				'is_crop_needed'  => FALSE,             # True if the image must be cropped to fit
 				'longest_side'    => [
 					'source'    => NULL,
 					'source_px' => NULL,

@@ -20,6 +20,9 @@ $pimage->out->compress([
 	'save_path' => $img_dir . '\compress.jpg',
 ]);
 
+$pimage->showDebug();               # Show the debug
+
+exit;
 
 /**
  * Cover

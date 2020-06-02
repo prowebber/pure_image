@@ -87,7 +87,7 @@ class PureImage{
 	/**
 	 * Return an array of all the images processed
 	 */
-	public function getOutputInfo(){
+	public function getResult(){
 		return $this->ch->output;
 	}
 }
