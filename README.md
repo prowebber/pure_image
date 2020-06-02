@@ -268,6 +268,19 @@ $pimage->setMaxImageSize(10000000);
 ```
 &nbsp;
 
+### Getting Output Result
+After the images have been created you can fetch the output result/response with the following
+method call:
+
+```php
+$result = $pimage->getResult();
+```
+
+This will return a numeric array with details for each image processed.  The array is built
+chronologically so requesting `$result[0]` will return the [debug](#debug) info for that image.
+&nbsp;
+
+
 ### Errors
 Pure Image id designed to catch all errors before generating any output images.  If an error is detected it  
 will store the error message and return false.  Below are different ways to check errors: \
@@ -306,33 +319,38 @@ info to the screen.
 $pimage->showDebug();
 ```
 
-**Debug Description**
+**Debug Description** \
+Below is an overview of the information output when debugging.
+
 ```
-[ID]                        ** The Array index of the output image
+[ID]                        ** {Int} The Array index of the output image starting at 0
 |-- method                  ** {String} The compression/resize method to use
 |-- width_px                ** {Int} The desired width of the output image
 |-- height_px               ** {Int} The desired height of the output image
-|-- save_path
-|-- quality
-|-- output_type
-|-- rules
-|   |-- is_crop_needed
-|   |-- longest_side
-|   |   |-- source
-|   |   |-- source_px
-|   |   |-- output
-|   |   |-- output_px
-|   |-- calc_dimensions
-|   |   |-- ratio
-|   |   |-- width
-|   |   |-- height
-|   |-- resize
-|   |   |-- width
-|   |   |-- height
-|   |-- crop
-|   |   |-- x
-|   |   |-- y
-|   |   |-- width
-|   |   |-- height
-|   |   |-- crop_position
+|-- quality                 ** {Int} Quality level (converted to jpeg/png compression value)
+|-- save_as                 ** {Array} Contains details on saving the image
+|   |-- file_type           ** {String} jpg|png|gif
+|   |-- img_name            ** {String} saved image name (e.g. mount-everest)
+|   |-- file_name           ** {String} saved image filename (e.g. mount-everest.jpg)
+|   |-- file_path           ** {String} saved image output path (e.g. /home/user/mount-everest.jpg)
+|-- rules                   ** {Array} Contains rules used for resizing the image
+|   |-- is_crop_needed      ** {Bool} True if the image needs to be cropped to meet desired dimensions
+|   |-- longest_side        ** {Array} Contains information on the input/output longest side(s)
+|   |   |-- source          ** {String} Which side on the source is the longest (width|height)
+|   |   |-- source_px       ** {Int} The length of the longest side in px
+|   |   |-- output          ** {String} Which side on the output is the longest (width|height)
+|   |   |-- output_px       ** {Int} The length of the longest side in px
+|   |-- calc_dimensions     ** {Array} Contains dimensions required to keep the aspect ratio
+|   |   |-- ratio           ** {Int|Decimal} The ratio of the source to output image
+|   |   |-- width           ** {Int|Decimal} The width in px required for perfect fit
+|   |   |-- height          ** {Int|Decimal} The height in px required for perfect fit
+|   |-- resize              ** {Array} Contains dimensions to re-size the image to
+|   |   |-- width           ** {Int} The width in px to resize the image to
+|   |   |-- height          ** {Int} The height in px to resize the image to
+|   |-- crop                ** {Array} Contains crop details (if the image needs to be cropped)
+|   |   |-- x               ** {Int} Starting x-coord for the crop 
+|   |   |-- y               ** {Int} Starting y-coord for the crop
+|   |   |-- width           ** {Int} Width of the crop
+|   |   |-- height          ** {Int} Height of the crop
+|   |   |-- crop_position   ** {String} Describes crop position {x y}
 ```
