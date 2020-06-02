@@ -10,18 +10,6 @@ $pimage = new PureImage();                      # Init Pure Image
 $pimage->setMaxImageSize(10000000);             # Set the max allowed image size (for the source image)
 $pimage->add->image($img_dir . $img_name);      # Specify the source image
 
-$pimage->out->cover([
-	'width'     => 300,
-	'height'    => 200,
-	'save_path' => $img_dir . '\fit.jpg',
-]);
-
-$pimage->showDebug();               # Show the debug
-
-$result = $pimage->getResult();
-
-exit;
-
 
 /**
  * Compress
