@@ -11,6 +11,8 @@ $pimage->setMaxImageSize(10000000);             # Set the max allowed image size
 $pimage->add->image($img_dir . $img_name);      # Specify the source image
 
 
+
+
 /**
  * Compress
  *

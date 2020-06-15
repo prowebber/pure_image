@@ -290,6 +290,13 @@ class Apps__Set_Output{
 				$this->params['rules']['crop']['crop_position'] = 'top left';
 			}
 		}
+		
+		# If the image does not need to be adjusted; set the default size
+		else{
+			$this->params['rules']['is_crop_needed']   = 0;
+			$this->params['rules']['resize']['width']  = $needed_width;
+			$this->params['rules']['resize']['height'] = $needed_height;
+		}
 	}
 	
 	
