@@ -219,6 +219,36 @@ $pimage->save->image();
 
 
 ### Hash
+The hash feature is used to create a unique hash for each image that makes it easy to detect duplicate
+images in a database.  All hashes have the following features:
+
+* Generates a 64 character fingerprint you can compare other images against
+* Two different hashing algorithms are used (Average and Difference)
+* All images are rotated so mirrored images with have the same hash value
+
+**Notes**
+1. PHP does not support unsigned BigInts, so you will need to convert the fingerprint hashes to hex or decimals within your script
+2. You can save the hash image (if desired), but it is not necessary as the fingerprint represents the image exactly
+3. Each digit in the fingerprint represents a specific pixel in the image. 0 = x0,y0, and 63 = x7,y7
+
+#### Average Fingerprint
+Creates a hash based on the average brightness of the image.
+
+1. Visit each pixel (in order)
+2. Compare the brightness of the current pixel to the average brightness of the entire image
+   * If the current pixel is darker than average, give the current pixel a value of `1`
+   * If the current pixel is lighter than average, give the current pixel a value of `0`
+3. When completed, you will have a 64 character binary string of 0's and 1's
+
+#### Difference Fingerprint
+Creates a hash based off the brightness of the previous pixel.
+
+1. Visit each pixel (in order)
+2. Compare the brightness of the current pixel to the brightness of the previous pixel
+   * If the current pixel is brighter, give the current pixel a value of `1`
+   * If the previous pixel is brighter, give the current pixel a value of `0`
+3. When completed, you will have a 64 character binary string of 0's and 1's
+
 This is used to generate a hash of the image to help detect similar images that are being compressed.  The hash
 will do the following:
 

@@ -178,38 +178,37 @@ class Generate__Image{
 		
 		
 		/*
-		 * Re-size the image so the hash will fit inside 64 bits
-		 */
-		$final = imagecreatetruecolor(8, 8);
-		imagecopyresampled($final, $output, 0, 0, 0, 0, 8, 8, $img_width, $img_height);
-		
-		/*
 		 * Regenerate the hash after flipped (only do this on a 8x8 image to keep 64 bit worth of data)
 		 */
-		$binary_hash = "";                                              # Stores the new binary hash val
-		$bit_count   = 0;
-		$img_height  = 8;                                               # Specify the image width is now 8px
-		$img_width   = 8;                                               # Specify the image height is now 8px
+		$img_height = 8;                                               # Specify the image width is now 8px
+		$img_width  = 8;                                               # Specify the image height is now 8px
 		
-		$test_matrix     = [];
-		$pixel_debug     = [];
-		$comp_test       = "";
-		$rgb_fingerprint = "";
+		$pixel_debug      = [];
+		$diff_fingerprint = "";                                         # Fingerprint based on if the current pixel is brighter than the previous pixel
+		$avg_fingerprint  = "";                                         # Fingerprint based on if the pixel is brighter than the average image greyscale color
+		$avg_bit_count    = 0;                                          # Counts the total 'bits' (1 values) in the avg_fingerprint
+		$diff_bit_count   = 0;                                          # Counts the total 'bits' (1 values) in the diff_fingerprint
 		
 		$prev_key = NULL;
 		for($y = 0; $y < $img_height; $y++){                            # Loop through each horizontal pixel
 			$y1 = $y * 2;
-			$y2 = $y1++;
+			$y2 = $y1 + 1;
+			
+			# Adjust pixel locations for flipping
+			if($flip_rule == 'flip_vert' || $flip_rule == 'flip_both'){
+				$y1 = 15 - $y2;
+				$y2 = $y1 + 1;
+			}
 			
 			for($x = 0; $x < $img_width; $x++){                         # Loop through each vertical pixel
-				$rgb = imagecolorat($final, $x, $y);                    # Get the color
 				
 				$x1 = $x * 2;
 				$x2 = $x1 + 1;
 				
-				if($flip_rule == 'flip_horiz'){                         # Adjust for horizontal flipping
+				# Adjust pixel locations for flipping
+				if($flip_rule == 'flip_horiz' || $flip_rule == 'flip_both'){
 					$x1 = 15 - $x2;
-					$x2 = $x1+ 1;
+					$x2 = $x1 + 1;
 				}
 				
 				$key    = $x . '-' . $y;
@@ -222,31 +221,17 @@ class Generate__Image{
 				$black_white     = ((($cell_a['bit_val'] + $cell_b['bit_val'] + $cell_c['bit_val'] + $cell_d['bit_val']) / 4) >= .5) ? 1 : 0;
 				$black_white_avg = (($cell_a['bit_val'] + $cell_b['bit_val'] + $cell_c['bit_val'] + $cell_d['bit_val']) / 4);
 				$rgb_avg         = (($cell_a['rgb'] + $cell_b['rgb'] + $cell_c['rgb'] + $cell_d['rgb']) / 4);
-				$comp_test       .= $black_white;
+				$avg_fingerprint .= $black_white;                           # 1 = pixel is darker than the average pixel; 0 = pixel is lighter than the average pixel
+				$avg_bit_count   += $black_white;
 				
 				$prev_rgb_avg = empty($prev_key) ? 0 : $pixel_debug[$prev_key]['avg_rgb'];
 				$rgb_brighter = ($rgb_avg > $prev_rgb_avg) ? 1 : 0;     # 1 = this cell is brighter than the previous cell
 				
-				$test_matrix[$key][] = $x1 . '-' . $y1;
-				$test_matrix[$key][] = $x1 . '-' . $y2;
-				$test_matrix[$key][] = $x2 . '-' . $y1;
-				$test_matrix[$key][] = $x2 . '-' . $y2;
-				
-				$r = ($rgb >> 16) & 0XFF;                               # Red
-				$g = ($rgb >> 8) & 0XFF;                                # Green
-				$b = $rgb & 0XFF;                                       # Blue
-				
-				# Get the hex code
-				$color_code = floor(($r * 0.299) + ($g * 0.587) + ($b * 0.114));
-				$color_val  = ($color_code > 127) ? 0 : 1;            # If it is greater than 255*.5 then it its black (1) otherwise white(2)
-				
-				$binary_hash     .= $color_val;                             # If it is greater than 255*.5 then it its black (1) otherwise white(2)
-				$bit_count       += $color_val;                             # Count the total '1' values in the string
-				$rgb_fingerprint .= $rgb_brighter;
+				$diff_fingerprint .= $rgb_brighter;
+				$diff_bit_count   += $rgb_brighter;
 				
 				$pixel_debug[$key] = [
 					'prev_bit_Val'        => $cell_a['bit_val'] . $cell_b['bit_val'] . $cell_c['bit_val'] . $cell_d['bit_val'],
-					'cur_bit_val'         => $color_val,
 					'test_bit_val'        => $black_white,
 					'avg_black_white_val' => $black_white_avg,
 					'avg_rgb'             => $rgb_avg,
@@ -260,7 +245,6 @@ class Generate__Image{
 		$this->ch->output[$img_id]['hash']['debug']                 = [
 //			'pixels'      => $pixels,
 'raw_px_data' => $raw_px_data,
-'test_matrix' => $test_matrix,
 'pixel_debug' => $pixel_debug,
 		];
 		$this->ch->output[$img_id]['hash']['avg_grey']              = $avg_grey;
@@ -268,15 +252,10 @@ class Generate__Image{
 		$this->ch->output[$img_id]['hash']['darkest']['horizontal'] = $darkest_horiz;
 		$this->ch->output[$img_id]['hash']['flip_direction']        = empty($flip_rule) ? 'none' : $flip_rule;
 		$this->ch->output[$img_id]['hash']['fingerprints']          = [
-			'average_hash'    => $comp_test,
-			'difference_hash' => $rgb_fingerprint,
-		];
-		$this->ch->output[$img_id]['hash']['values']                = [
-			'bin'       => $binary_hash,                                # Binary hash
-			'bin_comp'  => $comp_test,
-			'int'       => bindec($binary_hash),                        # Int representation of the binary value (BigInt Unsigned)
-			'hex'       => dechex(bindec($binary_hash)),                # Hex representation of the binary value (16 chars)
-			'bit_count' => $bit_count,
+			'average_hash'         => $avg_fingerprint,
+			'average_bit_count'    => $avg_bit_count,
+			'difference_hash'      => $diff_fingerprint,
+			'difference_bit_count' => $diff_bit_count,
 		];
 		
 		return $output;
