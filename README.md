@@ -76,12 +76,13 @@ $pimage->save->image();
 
 ### Resize Options/Methods
 
-|   Method   | Description                                                                                                  |
-|:----------:|:-------------------------------------------------------------------------------------------------------------|
-| `compress` | Don't resize the image; compress only                                                                        |
-|  `cover`   | Shrink the image so the width and height are the exact dimensions specified. The final image may be cropped. |
-|   `fit`    | Shrink the image so both the width and height fit within the dimensions specified                            |
-|  `scale`   | Scale the image to a specified width or height.  Keep aspect ratio.                                          |
+|   Method   | Description                                                                                                      |
+|:----------:|:-----------------------------------------------------------------------------------------------------------------|
+| `compress` | Don't resize the image; compress only                                                                            |
+|  `cover`   | Shrink the image so the width and height are the exact dimensions specified. The final image may be cropped.     |
+|   `fit`    | Shrink the image so both the width and height fit within the dimensions specified                                |
+|  `scale`   | Scale the image to a specified width or height.  Keep aspect ratio.                                              |
+|   `hash`   | Generate a perceptual image hash and return the hash and the bit value of the image for detecting similar images |
 
 
 ### Image Compression/Quality
@@ -216,6 +217,31 @@ $pimage->out->scale([
 $pimage->save->image();
 ```
 
+
+### Hash
+This is used to generate a hash of the image to help detect similar images that are being compressed.  Here
+is an overview of the hashing logic:
+
+1. Shrink the image to 10px x 10px (uses the 'cover' resize method)
+2. Convert the image to grayscale
+3. Detect the average grayscale color
+4. Compute the bits
+
+```
+1. Make all images uniform
+|-- Shrink the image to 10px x 10px (use the 'cover' resize method)
+|-- Convert the image to grayscale
+2. Remove minor color differences
+|-- Determine the overall average grayscale color value for the image
+|-- Loop through each pixel and assign it a boolean grayscale value
+|   |-- Value of 1 indicates the pixel is darker than the average grayscale value
+|   |-- Value of 0 indicates the pixel is lighter than the average grayscale value
+3. Rotate the image so the darkest size is on the bottom right and lightest side is top left
+|   |-- This helps catch similar images that are flipped or rotated
+4. Compute the bits
+|-- Visit each pixel (since it has been rotated) and get the boolean grayscale value
+|-- Create a string of the boolean grayscale values (this is the bit string)
+```
 
 
 

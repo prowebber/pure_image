@@ -18,7 +18,7 @@ class Apps__Create_Image{
 	 */
 	public function __construct(Channel $ch){
 		$this->ch        = $ch;
-		$this->gen_image = new Generate__Image();
+		$this->gen_image = new Generate__Image($this->ch);
 	}
 	
 	
@@ -33,7 +33,7 @@ class Apps__Create_Image{
 			'abs_path'  => $this->ch->source['abs_path'],
 		];
 		
-		foreach($this->ch->output as $image){                   # Loop through each image to be created
+		foreach($this->ch->output as $img_id => $image){                # Loop through each image to be created
 			$is_crop_needed = $image['rules']['is_crop_needed'];
 			$save_path      = $image['save_as']['file_path'];
 			$quality        = $image['quality'];
@@ -44,7 +44,7 @@ class Apps__Create_Image{
 			$output_height = $image['rules']['resize']['height'];
 			
 			# Make and convert the image (if the source type has changed)
-			$this->gen_image->make($source_params, $source_type, $file_type, $output_width, $output_height, $save_path, $quality);
+			$this->gen_image->make($source_params, $source_type, $file_type, $output_width, $output_height, $save_path, $quality, $img_id);
 			$new_source_type = $file_type;                      # The source will always be the output type after the image has been made
 			
 			// If a crop is needed to fit the image
@@ -54,7 +54,7 @@ class Apps__Create_Image{
 				$x_pos         = $image['rules']['crop']['x'];
 				$y_pos         = $image['rules']['crop']['y'];
 				
-				$this->gen_image->crop($save_path, $new_source_type, $output_width, $output_height, $x_pos, $y_pos, $quality);
+				$this->gen_image->crop($save_path, $new_source_type, $output_width, $output_height, $x_pos, $y_pos, $quality, $img_id);
 			}
 		}
 	}

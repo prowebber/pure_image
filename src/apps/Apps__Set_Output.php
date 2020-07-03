@@ -57,6 +57,15 @@ class Apps__Set_Output{
 	
 	
 	
+	public function hash($params){
+		$params['width']  = 16;
+		$params['height'] = 16;
+		
+		$this->image($params, 'hash');
+	}
+	
+	
+	
 	/**
 	 * Apps__Set_Output Controller Function
 	 */
@@ -91,18 +100,27 @@ class Apps__Set_Output{
 		if(!$this->ch->errorFree()) return FALSE;               # Don't continue if an error exists
 		
 		$this->params = [
-			'method'    => $method,
-			'width_px'  => $width,                      # Desired width
-			'height_px' => $height,                     # Desired height
-			'quality'   => $quality,                    # 0-100 if jpg, 0-9 if png
-			'save_as'   => [
+			'method'          => $method,
+			'width_px'        => $width,                      # Desired width
+			'height_px'       => $height,                     # Desired height
+			'quality'         => $quality,                    # 0-100 if jpg, 0-9 if png
+			'save_as'         => [
 				'file_type' => $output_img_type,        # jpg|png|gif
 				'img_name'  => $image_name,             # mount-everest
 				'file_name' => $file_name,              # mount-everest.jpg
 				'file_path' => $file_path,              # /home/user/mount-everest.jpg
 			],
+			'final_width_px'  => NULL,                  # The width of the output image
+			'final_height_px' => NULL,                  # The height of the output image
+			
+			# Only used when hashing
+			'hash'            => [
+				'md5'   => NULL,
+				'md5_b' => 'b',
+			],
 			
 			'rules' => [
+				'is_hash'         => FALSE,
 				'is_crop_needed'  => FALSE,             # True if the image must be cropped to fit
 				'longest_side'    => [
 					'source'    => NULL,
@@ -147,6 +165,20 @@ class Apps__Set_Output{
 		}
 		elseif($method == 'cover'){
 			$this->calcCover();
+		}
+		elseif($method == 'hash'){
+			$this->params['rules']['is_hash'] = TRUE;   # Specify this is a hash
+			$this->calcCover();                         # Use the 'cover' method
+		}
+		
+		// Record the final image size
+		if($this->params['rules']['is_crop_needed']){   # If the image is being cropped
+			$this->params['final_width_px']  = $this->params['rules']['crop']['width'];
+			$this->params['final_height_px'] = $this->params['rules']['crop']['height'];
+		}
+		else{                                           # If the image is NOT being cropped
+			$this->params['final_width_px']  = $this->params['rules']['resize']['width'];
+			$this->params['final_height_px'] = $this->params['rules']['resize']['height'];
 		}
 		
 		$this->ch->output[] = $this->params;            # Add to the output
@@ -372,6 +404,35 @@ class Apps__Set_Output{
 				$set_width -= 1;                            # Subtract 1
 			}
 			# @todo add a check to verify the image can fit the desired dimension
+			
+			# Since the image does not need to keep aspect ratio, round down to the nearest pixel
+			$this->params['rules']['resize']['width']  = $set_width;
+			$this->params['rules']['resize']['height'] = $height_out;
+			
+			$middle_x = ($set_width - $width_out) / 2;
+			
+			$this->params['rules']['crop']['x']             = $middle_x;
+			$this->params['rules']['crop']['y']             = 0;
+			$this->params['rules']['crop']['width']         = $width_out;
+			$this->params['rules']['crop']['height']        = $height_out;
+			$this->params['rules']['crop']['crop_position'] = 'middle center';
+		}
+		
+		// If the image is equal width and height
+		else{
+			# Get the width if the image was scaled down to fit the height
+			$ratio        = $height_source / $height_out;
+			$needed_width = $width_source / $ratio;
+			
+			$this->params['rules']['calc_dimensions']['ratio']  = $ratio;
+			$this->params['rules']['calc_dimensions']['width']  = $needed_width;
+			$this->params['rules']['calc_dimensions']['height'] = $height_out;      # Use the height out the user specified
+			
+			# The final width needs to be even and cannot be a decimal
+			$set_width = floor($needed_width);
+			if($set_width % 2 != 0){                        # If the set width is odd
+				$set_width -= 1;                            # Subtract 1
+			}
 			
 			# Since the image does not need to keep aspect ratio, round down to the nearest pixel
 			$this->params['rules']['resize']['width']  = $set_width;
