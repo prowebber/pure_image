@@ -236,7 +236,16 @@ You can store the image hashes in a database.  Below is an example of a MySQL ta
 | `total_bits` | tinyint         | Contains the total `1` values in the binary string |
 | `img_hash`   | bigint UNSIGNED | Stores the hash value as an integer                |
 
-More MySQL logic to follow...
+#### Issues
+* PHP does not support unsigned BigInt values
+* If the image bit value is larger than a BigInt, it will be an invalid hash
+* The best workaround is to use the bit value and have MySQL convert it to the BitInt hash
+
+```sql
+- This will convert the binary string to an Unsigned BigInt in MySQL
+SELECT
+    CAST(CONV(BINARY('1000000110000000000000000000000000000001111011111111111111111111'), 2, 10) AS UNSIGNED INTEGER) img_hash
+```
 
 
 **Hash Logic Used**

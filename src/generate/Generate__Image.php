@@ -74,6 +74,8 @@ class Generate__Image{
 		$img_height = $this->ch->output[$img_id]['final_height_px'];    # Get the height of the output image
 		
 		// Calculate the average grayscale value
+		$raw_px_data = [];
+		
 		$pixels = [];                                                   # Stores the grayscale value for each pixel
 		for($y = 0; $y < $img_height; $y++){                            # Loop through each pixel vertically
 			for($x = 0; $x < $img_width; $x++){                         # Loop through each pixel horizontally
@@ -84,8 +86,12 @@ class Generate__Image{
 				$b = $rgb & 0XFF;                                       # Blue value
 				
 				# Specify the greyscale ratios
-				$pixels[] = floor(($r * 0.299) + ($g * 0.587) + ($b * 0.114));
+				$ratio = floor(($r * 0.299) + ($g * 0.587) + ($b * 0.114));
 				# $pixels[] = floor(($r * 0.2126) + ($g * 0.7152) + ($b * 0.0722));
+				$pixels[] = $ratio;
+				
+				$key                      = $x . '-' . $y;
+				$raw_px_data[$key]['rgb'] = $ratio;
 			}
 		}
 		
@@ -113,8 +119,11 @@ class Generate__Image{
 		$i = 0;
 		for($y = 0; $y < $img_height; $y++){                            # Loop through each vertical pixel
 			for($x = 0; $x < $img_width; $x++){                         # Loop through each horizontal pixel
-				$is_black = ($pixels[$i] > $avg_grey) ? 0 : 1;          # True if the color is black
+				$is_black = ($pixels[$i] > $avg_grey) ? 1 : 0;          # 1 = black; 0 = white;
 				$color    = ($is_black) ? $black : $white;              # Specify the color values to use
+				
+				$key                          = $x . '-' . $y;
+				$raw_px_data[$key]['bit_val'] = $is_black;
 				
 				imagesetpixel($output, $x, $y, $color);                 # Re-color the image so it is black OR white (no grayscale)
 				
@@ -182,9 +191,46 @@ class Generate__Image{
 		$img_height  = 8;                                               # Specify the image width is now 8px
 		$img_width   = 8;                                               # Specify the image height is now 8px
 		
+		$test_matrix     = [];
+		$pixel_debug     = [];
+		$comp_test       = "";
+		$rgb_fingerprint = "";
+		
+		$prev_key = NULL;
 		for($y = 0; $y < $img_height; $y++){                            # Loop through each horizontal pixel
+			$y1 = $y * 2;
+			$y2 = $y1++;
+			
 			for($x = 0; $x < $img_width; $x++){                         # Loop through each vertical pixel
 				$rgb = imagecolorat($final, $x, $y);                    # Get the color
+				
+				$x1 = $x * 2;
+				$x2 = $x1 + 1;
+				
+				if($flip_rule == 'flip_horiz'){                         # Adjust for horizontal flipping
+					$x1 = 15 - $x2;
+					$x2 = $x1+ 1;
+				}
+				
+				$key    = $x . '-' . $y;
+				$cell_a = $raw_px_data[$x1 . '-' . $y1];
+				$cell_b = $raw_px_data[$x1 . '-' . $y2];
+				$cell_c = $raw_px_data[$x2 . '-' . $y1];
+				$cell_d = $raw_px_data[$x2 . '-' . $y2];
+				
+				# Compute the black/white value based off the 4 cells that were occupying this region in the 16x16 thumbnail
+				$black_white     = ((($cell_a['bit_val'] + $cell_b['bit_val'] + $cell_c['bit_val'] + $cell_d['bit_val']) / 4) >= .5) ? 1 : 0;
+				$black_white_avg = (($cell_a['bit_val'] + $cell_b['bit_val'] + $cell_c['bit_val'] + $cell_d['bit_val']) / 4);
+				$rgb_avg         = (($cell_a['rgb'] + $cell_b['rgb'] + $cell_c['rgb'] + $cell_d['rgb']) / 4);
+				$comp_test       .= $black_white;
+				
+				$prev_rgb_avg = empty($prev_key) ? 0 : $pixel_debug[$prev_key]['avg_rgb'];
+				$rgb_brighter = ($rgb_avg > $prev_rgb_avg) ? 1 : 0;     # 1 = this cell is brighter than the previous cell
+				
+				$test_matrix[$key][] = $x1 . '-' . $y1;
+				$test_matrix[$key][] = $x1 . '-' . $y2;
+				$test_matrix[$key][] = $x2 . '-' . $y1;
+				$test_matrix[$key][] = $x2 . '-' . $y2;
 				
 				$r = ($rgb >> 16) & 0XFF;                               # Red
 				$g = ($rgb >> 8) & 0XFF;                                # Green
@@ -194,18 +240,40 @@ class Generate__Image{
 				$color_code = floor(($r * 0.299) + ($g * 0.587) + ($b * 0.114));
 				$color_val  = ($color_code > 127) ? 0 : 1;            # If it is greater than 255*.5 then it its black (1) otherwise white(2)
 				
-				$binary_hash .= $color_val;                             # If it is greater than 255*.5 then it its black (1) otherwise white(2)
-				$bit_count   += $color_val;                             # Count the total '1' values in the string
+				$binary_hash     .= $color_val;                             # If it is greater than 255*.5 then it its black (1) otherwise white(2)
+				$bit_count       += $color_val;                             # Count the total '1' values in the string
+				$rgb_fingerprint .= $rgb_brighter;
+				
+				$pixel_debug[$key] = [
+					'prev_bit_Val'        => $cell_a['bit_val'] . $cell_b['bit_val'] . $cell_c['bit_val'] . $cell_d['bit_val'],
+					'cur_bit_val'         => $color_val,
+					'test_bit_val'        => $black_white,
+					'avg_black_white_val' => $black_white_avg,
+					'avg_rgb'             => $rgb_avg,
+				];
+				
+				$prev_key = $key;                                       # Update the previous key
 			}
 		}
 		
 		# Rebuild the hash for the rotated image
+		$this->ch->output[$img_id]['hash']['debug']                 = [
+//			'pixels'      => $pixels,
+'raw_px_data' => $raw_px_data,
+'test_matrix' => $test_matrix,
+'pixel_debug' => $pixel_debug,
+		];
 		$this->ch->output[$img_id]['hash']['avg_grey']              = $avg_grey;
 		$this->ch->output[$img_id]['hash']['darkest']['vertical']   = $darkest_vert;
 		$this->ch->output[$img_id]['hash']['darkest']['horizontal'] = $darkest_horiz;
 		$this->ch->output[$img_id]['hash']['flip_direction']        = empty($flip_rule) ? 'none' : $flip_rule;
+		$this->ch->output[$img_id]['hash']['fingerprints']          = [
+			'average_hash'    => $comp_test,
+			'difference_hash' => $rgb_fingerprint,
+		];
 		$this->ch->output[$img_id]['hash']['values']                = [
 			'bin'       => $binary_hash,                                # Binary hash
+			'bin_comp'  => $comp_test,
 			'int'       => bindec($binary_hash),                        # Int representation of the binary value (BigInt Unsigned)
 			'hex'       => dechex(bindec($binary_hash)),                # Hex representation of the binary value (16 chars)
 			'bit_count' => $bit_count,

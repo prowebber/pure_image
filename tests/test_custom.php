@@ -4,8 +4,8 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $img_dir = __DIR__ . '/img_source';
-$img_name = '\water-original.jpg';
-//$img_name = '\water-original-flipped.jpg';
+//$img_name = '\water-original.jpg';
+$img_name = '\water-original-flipped.jpg';
 //$img_name = '\water-original-unflipped.jpg';
 
 
@@ -33,6 +33,9 @@ $pimage->add->image($img_dir . $img_name);      # Specify the source image
  * - https://stackoverflow.com/questions/11333591/find-similar-images-in-pure-php-mysql
  * - https://github.com/jenssegers/imagehash
  * - https://www.hackerfactor.com/blog/?/archives/432-Looks-Like-It.html
+ *
+ * Difference Hash
+ * - https://phpnews.io/feeditem/perceptual-image-hashes
  */
 
 /*
