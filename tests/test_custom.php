@@ -3,7 +3,7 @@
 // Composer autoload
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$img_dir = __DIR__ . '/img_source';
+$img_dir  = __DIR__ . '/img_source';
 $img_name = '\water-original.jpg';
 //$img_name = '\water-original-flipped.jpg';
 //$img_name = '\water-original-unflipped.jpg';
@@ -42,6 +42,7 @@ $pimage->add->image($img_dir . $img_name);      # Specify the source image
  * Generate a Perceptual Image Hash
  */
 $pimage->out->hash([
+	'save_img'  => FALSE,                               # True only if you want the image saved
 	'save_path' => $img_dir . '/hash_test.jpg',
 ]);
 

@@ -22,7 +22,8 @@ class Generate__Image{
 	
 	public function make($source, $source_type, $output_type, $output_width, $output_height, $save_path, $quality, $img_id){
 		$is_crop_needed = $this->ch->output[$img_id]['rules']['is_crop_needed'];
-		$is_hash        = $this->ch->output[$img_id]['rules']['is_hash'];    # True if creating an image hash
+		$is_hash        = $this->ch->output[$img_id]['rules']['is_hash'];       # True if creating an image hash
+		$is_save_img    = $this->ch->output[$img_id]['save_as']['save_img'];    # False if the image should not be saved (only with hashes)
 		$source_width   = $source['width_px'];
 		$source_height  = $source['height_px'];
 		$source_path    = $source['abs_path'];
@@ -46,6 +47,12 @@ class Generate__Image{
 		// If creating a hashed image
 		if($is_hash && !$is_crop_needed){                                   # Handle images that are NOT cropped
 			$output = $this->calcHash($img_id, $output);
+			
+			if($is_save_img == FALSE){                                      # If the hashed image is NOT to be saved
+				imagedestroy($output);                                      # Clear the image objects from PHP memory
+				imagedestroy($input);
+				return;                                                     # Don't continue
+			}
 		}
 		
 		// Create the image
@@ -214,7 +221,7 @@ class Generate__Image{
 				$diff_bit_count      += $is_darker_than_prev;
 				
 				$pixel_map[$key] = [
-					'avg_rgb'      => $rgb_avg,
+					'avg_rgb' => $rgb_avg,
 				];
 				
 				$prev_key = $key;                                       # Update the previous key
@@ -240,7 +247,8 @@ class Generate__Image{
 	
 	public function crop($source_path, $source_type, $output_width, $output_height, $x_pos, $y_pos, $quality, $img_id){
 		$is_crop_needed = $this->ch->output[$img_id]['rules']['is_crop_needed'];
-		$is_hash        = $this->ch->output[$img_id]['rules']['is_hash'];    # True if creating an image hash
+		$is_hash        = $this->ch->output[$img_id]['rules']['is_hash'];       # True if creating an image hash
+		$is_save_img    = $this->ch->output[$img_id]['save_as']['save_img'];    # False if the image should not be saved (only with hashes)
 		
 		// Input params
 		if($source_type == 'jpg'){                                          # Jpg images
@@ -266,6 +274,11 @@ class Generate__Image{
 		// If creating a hashed image
 		if($is_hash && $is_crop_needed){                                    # Handle images that ARE cropped
 			$cropped_img = $this->calcHash($img_id, $cropped_img);
+			
+			if($is_save_img == FALSE){                                      # If the hashed image is NOT to be saved
+				imagedestroy($cropped_img);                                 # Clear the image objects from PHP memory
+				return;                                                     # Don't continue
+			}
 		}
 		
 		// Save the image

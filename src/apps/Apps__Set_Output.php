@@ -79,6 +79,7 @@ class Apps__Set_Output{
 		$width     = $params['width'] ?? NULL;
 		$height    = $params['height'] ?? NULL;
 		$save_path = $params['save_path'] ?? NULL;
+		$save_img  = $params['save_img'] ?? TRUE;
 		
 		# See if the user specified any optional params
 		$output_img_type = $params['output_type'] ?? $source_img_type;                      # Use the type specified by the user; default to the input filetype if not specified
@@ -109,6 +110,7 @@ class Apps__Set_Output{
 				'img_name'  => $image_name,             # mount-everest
 				'file_name' => $file_name,              # mount-everest.jpg
 				'file_path' => $file_path,              # /home/user/mount-everest.jpg
+				'save_img'  => $save_img,               # Only used if the image is a hash
 			],
 			'final_width_px'  => NULL,                  # The width of the output image
 			'final_height_px' => NULL,                  # The height of the output image
