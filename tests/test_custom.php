@@ -4,8 +4,8 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $img_dir = __DIR__ . '/img_source';
-//$img_name = '\water-original.jpg';
-$img_name = '\water-original-flipped.jpg';
+$img_name = '\water-original.jpg';
+//$img_name = '\water-original-flipped.jpg';
 //$img_name = '\water-original-unflipped.jpg';
 
 

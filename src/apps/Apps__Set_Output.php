@@ -58,8 +58,8 @@ class Apps__Set_Output{
 	
 	
 	public function hash($params){
-		$params['width']  = 16;
-		$params['height'] = 16;
+		$params['width']  = 16;     # DO NOT CHANGE THIS
+		$params['height'] = 16;     # DO NOT CHANGE THIS
 		
 		$this->image($params, 'hash');
 	}

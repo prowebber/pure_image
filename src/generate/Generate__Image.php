@@ -74,7 +74,7 @@ class Generate__Image{
 		$img_height = $this->ch->output[$img_id]['final_height_px'];    # Get the height of the output image
 		
 		// Calculate the average grayscale value
-		$raw_px_data = [];
+		$raw_px_data = [];                                              # Stores values for each pixel
 		
 		$pixels = [];                                                   # Stores the grayscale value for each pixel
 		for($y = 0; $y < $img_height; $y++){                            # Loop through each pixel vertically
@@ -86,8 +86,7 @@ class Generate__Image{
 				$b = $rgb & 0XFF;                                       # Blue value
 				
 				# Specify the greyscale ratios
-				$ratio = floor(($r * 0.299) + ($g * 0.587) + ($b * 0.114));
-				# $pixels[] = floor(($r * 0.2126) + ($g * 0.7152) + ($b * 0.0722));
+				$ratio    = floor(($r * 0.299) + ($g * 0.587) + ($b * 0.114));     # Value on a scale of 0-255
 				$pixels[] = $ratio;
 				
 				$key                      = $x . '-' . $y;
@@ -96,8 +95,6 @@ class Generate__Image{
 		}
 		
 		$avg_grey = floor(array_sum($pixels) / count($pixels));         # Get the average grayscale value
-		$black    = imagecolorallocate($output, 0, 0, 0);               # Set the black value for new pixels
-		$white    = imagecolorallocate($output, 255, 255, 255);         # Set the white value for new pixels
 		
 		/*
 		 * Rotate/flip the image so mirrored images will be considered duplicates
@@ -115,17 +112,17 @@ class Generate__Image{
 			'br' => 0,
 		];
 		
-		// Convert the image from grayscale to black and white
+		/*
+		 * - Determine which pixels are darker than average
+		 * - Do the calculations to determine how to rotate the image
+		 */
 		$i = 0;
 		for($y = 0; $y < $img_height; $y++){                            # Loop through each vertical pixel
 			for($x = 0; $x < $img_width; $x++){                         # Loop through each horizontal pixel
+				$key      = $x . '-' . $y;                              # Key for associative array
 				$is_black = ($pixels[$i] > $avg_grey) ? 1 : 0;          # 1 = black; 0 = white;
-				$color    = ($is_black) ? $black : $white;              # Specify the color values to use
 				
-				$key                          = $x . '-' . $y;
-				$raw_px_data[$key]['bit_val'] = $is_black;
-				
-				imagesetpixel($output, $x, $y, $color);                 # Re-color the image so it is black OR white (no grayscale)
+				$raw_px_data[$key]['bit_val'] = $is_black;              # Store the avg color value for each pixel
 				
 				# Left
 				if($x < floor($img_width / 2)){
@@ -162,35 +159,20 @@ class Generate__Image{
 			'bottom-right' => NULL,                                     # No rotation needed
 		];
 		
-		$flip_rule = $flip_dir[$darkest_vert . '-' . $darkest_horiz];
-		
-		if($flip_rule){                                                 # If the image needs to be flipped
-			if($flip_rule == 'flip_both'){
-				imageflip($output, IMG_FLIP_BOTH);
-			}
-			elseif($flip_rule == 'flip_vert'){
-				imageflip($output, IMG_FLIP_VERTICAL);
-			}
-			else{
-				imageflip($output, IMG_FLIP_HORIZONTAL);
-			}
-		}
+		$flip_rule = $flip_dir[$darkest_vert . '-' . $darkest_horiz];   # Get the name of the flip rule (for easier reference)
 		
 		
 		/*
-		 * Regenerate the hash after flipped (only do this on a 8x8 image to keep 64 bit worth of data)
+		 * Regenerate the hash after flipped (convert to 8x8 image scale to keep 64 bit worth of data)
 		 */
-		$img_height = 8;                                               # Specify the image width is now 8px
-		$img_width  = 8;                                               # Specify the image height is now 8px
-		
-		$pixel_debug      = [];
+		$pixel_map        = [];                                         # Maps the pixels for the final fingerprint
 		$diff_fingerprint = "";                                         # Fingerprint based on if the current pixel is brighter than the previous pixel
 		$avg_fingerprint  = "";                                         # Fingerprint based on if the pixel is brighter than the average image greyscale color
 		$avg_bit_count    = 0;                                          # Counts the total 'bits' (1 values) in the avg_fingerprint
 		$diff_bit_count   = 0;                                          # Counts the total 'bits' (1 values) in the diff_fingerprint
 		
 		$prev_key = NULL;
-		for($y = 0; $y < $img_height; $y++){                            # Loop through each horizontal pixel
+		for($y = 0; $y < 8; $y++){                                      # Loop through each horizontal pixel
 			$y1 = $y * 2;
 			$y2 = $y1 + 1;
 			
@@ -200,8 +182,7 @@ class Generate__Image{
 				$y2 = $y1 + 1;
 			}
 			
-			for($x = 0; $x < $img_width; $x++){                         # Loop through each vertical pixel
-				
+			for($x = 0; $x < 8; $x++){                                  # Loop through each vertical pixel
 				$x1 = $x * 2;
 				$x2 = $x1 + 1;
 				
@@ -217,24 +198,23 @@ class Generate__Image{
 				$cell_c = $raw_px_data[$x2 . '-' . $y1];
 				$cell_d = $raw_px_data[$x2 . '-' . $y2];
 				
-				# Compute the black/white value based off the 4 cells that were occupying this region in the 16x16 thumbnail
-				$black_white     = ((($cell_a['bit_val'] + $cell_b['bit_val'] + $cell_c['bit_val'] + $cell_d['bit_val']) / 4) >= .5) ? 1 : 0;
-				$black_white_avg = (($cell_a['bit_val'] + $cell_b['bit_val'] + $cell_c['bit_val'] + $cell_d['bit_val']) / 4);
-				$rgb_avg         = (($cell_a['rgb'] + $cell_b['rgb'] + $cell_c['rgb'] + $cell_d['rgb']) / 4);
-				$avg_fingerprint .= $black_white;                           # 1 = pixel is darker than the average pixel; 0 = pixel is lighter than the average pixel
-				$avg_bit_count   += $black_white;
+				// Compute the black/white value based off the 4 cells that were occupying this region in the 16x16 thumbnail
 				
-				$prev_rgb_avg = empty($prev_key) ? 0 : $pixel_debug[$prev_key]['avg_rgb'];
-				$rgb_brighter = ($rgb_avg > $prev_rgb_avg) ? 1 : 0;     # 1 = this cell is brighter than the previous cell
+				# Compute the answers for the average hash
+				$black_white_avg    = (($cell_a['bit_val'] + $cell_b['bit_val'] + $cell_c['bit_val'] + $cell_d['bit_val']) / 4);
+				$is_darker_than_avg = ($black_white_avg >= .5) ? 1 : 0;             # 1 = this pixel is darker than average; 0 = this pixel is lighter than average
+				$avg_fingerprint    .= $is_darker_than_avg;                         # 1 = pixel is darker than the average pixel; 0 = pixel is lighter than the average pixel
+				$avg_bit_count      += $is_darker_than_avg;                         # Count the total '1' values in the fingerprint
 				
-				$diff_fingerprint .= $rgb_brighter;
-				$diff_bit_count   += $rgb_brighter;
+				# Compute the answers for the difference hash
+				$rgb_avg             = (($cell_a['rgb'] + $cell_b['rgb'] + $cell_c['rgb'] + $cell_d['rgb']) / 4);
+				$prev_rgb_avg        = empty($prev_key) ? 0 : $pixel_map[$prev_key]['avg_rgb'];
+				$is_darker_than_prev = ($rgb_avg > $prev_rgb_avg) ? 1 : 0;                 # 1 = this cell is brighter than the previous cell
+				$diff_fingerprint    .= $is_darker_than_prev;
+				$diff_bit_count      += $is_darker_than_prev;
 				
-				$pixel_debug[$key] = [
-					'prev_bit_Val'        => $cell_a['bit_val'] . $cell_b['bit_val'] . $cell_c['bit_val'] . $cell_d['bit_val'],
-					'test_bit_val'        => $black_white,
-					'avg_black_white_val' => $black_white_avg,
-					'avg_rgb'             => $rgb_avg,
+				$pixel_map[$key] = [
+					'avg_rgb'      => $rgb_avg,
 				];
 				
 				$prev_key = $key;                                       # Update the previous key
@@ -242,11 +222,6 @@ class Generate__Image{
 		}
 		
 		# Rebuild the hash for the rotated image
-		$this->ch->output[$img_id]['hash']['debug']                 = [
-//			'pixels'      => $pixels,
-'raw_px_data' => $raw_px_data,
-'pixel_debug' => $pixel_debug,
-		];
 		$this->ch->output[$img_id]['hash']['avg_grey']              = $avg_grey;
 		$this->ch->output[$img_id]['hash']['darkest']['vertical']   = $darkest_vert;
 		$this->ch->output[$img_id]['hash']['darkest']['horizontal'] = $darkest_horiz;
