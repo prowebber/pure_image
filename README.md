@@ -219,17 +219,28 @@ $pimage->save->image();
 
 
 ### Hash
-This is used to generate a hash of the image to help detect similar images that are being compressed.  Here
-is an overview of the hashing logic:
+This is used to generate a hash of the image to help detect similar images that are being compressed.  The hash
+will do the following:
 
-1. Shrink the image to 10px x 10px (uses the 'cover' resize method)
-2. Convert the image to grayscale
-3. Detect the average grayscale color
-4. Compute the bits
+1. Create a black and white 16px x 16px variation of the image
+2. Rotate the images identically so flipped/rotated variants will be discovered
+3. Generate a 64 bit binary value of the image
+4. Use the binary value to create a hex and big int value
 
+**Database Storage**
+You can store the image hashes in a database.  Below is an example of a MySQL table to store the hashes:
+
+| Field        | Type            | Notes                                              |
+|:-------------|:----------------|:---------------------------------------------------|
+| `img_id`     | int             | Auto-incrementing image ID                         |
+| `total_bits` | tinyint         | Contains the total `1` values in the binary string |
+| `img_hash`   | bigint UNSIGNED | Stores the hash value as an integer                |
+
+
+**Hash Logic Used**
 ```
 1. Make all images uniform
-|-- Shrink the image to 10px x 10px (use the 'cover' resize method)
+|-- Shrink the image to 16px x 16px (use the 'cover' resize method)
 |-- Convert the image to grayscale
 2. Remove minor color differences
 |-- Determine the overall average grayscale color value for the image
@@ -238,9 +249,17 @@ is an overview of the hashing logic:
 |   |-- Value of 0 indicates the pixel is lighter than the average grayscale value
 3. Rotate the image so the darkest size is on the bottom right and lightest side is top left
 |   |-- This helps catch similar images that are flipped or rotated
+|   |-- Convert the image from greyscale to only black or white values
+|   |-- Rotate the image
 4. Compute the bits
-|-- Visit each pixel (since it has been rotated) and get the boolean grayscale value
-|-- Create a string of the boolean grayscale values (this is the bit string)
+|-- Resize the hash image to 8px x 8px so the total pixels is exactly 64 
+|-- Visit each pixel (since it has been rotated they may be different) and get the boolean grayscale value
+|-- Assign black pixels to 1 and white pixels to 0
+|-- Build the binary string of 0 and 1 values
+5. Generate the hashes
+|-- Record the binary string hash
+|-- Record the Decimal/BigInt value of the binary string
+|-- Record the hex value of the binary string
 ```
 
 

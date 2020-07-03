@@ -114,10 +114,7 @@ class Apps__Set_Output{
 			'final_height_px' => NULL,                  # The height of the output image
 			
 			# Only used when hashing
-			'hash'            => [
-				'md5'   => NULL,
-				'md5_b' => 'b',
-			],
+			'hash'            => [],
 			
 			'rules' => [
 				'is_hash'         => FALSE,

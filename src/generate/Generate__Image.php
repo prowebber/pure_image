@@ -147,15 +147,15 @@ class Generate__Image{
 		
 		# Set rules for flipping the image
 		$flip_dir = [
-			'top-left'     => 'flip_both',                      # Flip horizontal + flip vertical
-			'top-right'    => 'flip_vert',                      # Flip vertical
-			'bottom-left'  => 'flip_horiz',                     # Flip horizontal
-			'bottom-right' => NULL,                             # No rotation needed
+			'top-left'     => 'flip_both',                              # Flip horizontal + flip vertical
+			'top-right'    => 'flip_vert',                              # Flip vertical
+			'bottom-left'  => 'flip_horiz',                             # Flip horizontal
+			'bottom-right' => NULL,                                     # No rotation needed
 		];
 		
 		$flip_rule = $flip_dir[$darkest_vert . '-' . $darkest_horiz];
 		
-		if($flip_rule){                         # If the image needs to be flipped
+		if($flip_rule){                                                 # If the image needs to be flipped
 			if($flip_rule == 'flip_both'){
 				imageflip($output, IMG_FLIP_BOTH);
 			}
@@ -178,8 +178,9 @@ class Generate__Image{
 		 * Regenerate the hash after flipped (only do this on a 8x8 image to keep 64 bit worth of data)
 		 */
 		$binary_hash = "";                                              # Stores the new binary hash val
-		$img_height = 8;                                                # Specify the image width is now 8px
-		$img_width  = 8;                                                # Specify the image height is now 8px
+		$bit_count   = 0;
+		$img_height  = 8;                                               # Specify the image width is now 8px
+		$img_width   = 8;                                               # Specify the image height is now 8px
 		
 		for($y = 0; $y < $img_height; $y++){                            # Loop through each horizontal pixel
 			for($x = 0; $x < $img_width; $x++){                         # Loop through each vertical pixel
@@ -190,208 +191,24 @@ class Generate__Image{
 				$b = $rgb & 0XFF;                                       # Blue
 				
 				# Get the hex code
-				$color_code  = floor(($r * 0.299) + ($g * 0.587) + ($b * 0.114));
-				$binary_hash .= ($color_code > 127) ? 0 : 1;            # If it is greater than 255*.5 then it its black (1) otherwise white(2)
-			}
-		}
-		
-		# Rebuild the hash for the rotated image
-		$this->ch->output[$img_id]['hash']['avg_grey']              = $avg_grey;
-		$this->ch->output[$img_id]['hash']['colors']                = $pixels;
-		$this->ch->output[$img_id]['hash']['quarters']              = $quarters;
-		$this->ch->output[$img_id]['hash']['darkest']['vertical']   = $darkest_vert;
-		$this->ch->output[$img_id]['hash']['darkest']['horizontal'] = $darkest_horiz;
-		$this->ch->output[$img_id]['hash']['flip_direction']        = empty($flip_rule) ? 'none' : $flip_rule;
-		$this->ch->output[$img_id]['hash']['values']                = [
-			'bin' => $binary_hash,                                      # Binary hash
-			'int' => bindec($binary_hash),                              # Int representation of the binary value (BigInt Unsigned)
-			'hex' => dechex(bindec($binary_hash)),                      # Hex representation of the binary value (16 chars)
-		];
-		
-		return $output;
-	}
-	
-	
-	
-	private function calcHashPrev($img_id, $output){
-		imagefilter($output, IMG_FILTER_GRAYSCALE);                     # Convert to greyscale
-		
-		# Get the dimensions
-		$img_width  = $this->ch->output[$img_id]['final_width_px'];     # Get the width of the output image
-		$img_height = $this->ch->output[$img_id]['final_height_px'];    # Get the height of the output image
-		
-		
-		// Calculate the average grayscale value
-		$pixels = [];                                       # Stores the grayscale value for each pixel
-		for($y = 0; $y < $img_height; $y++){                # Loop through each pixel vertically
-			for($x = 0; $x < $img_width; $x++){             # Loop through each pixel horizontally
-				$rgb = imagecolorat($output, $x, $y);       # Get the color RGB
-				
-				$r = ($rgb >> 16) & 0XFF;                   # Red value
-				$g = ($rgb >> 8) & 0XFF;                    # Green value
-				$b = $rgb & 0XFF;                           # Blue value
-				
-				/*
-				 * Specify the ratios
-				 * Not sure what the values indicate, but both yield the same results
-				 * - https://github.com/jenssegers/imagehash/blob/master/src/Implementations/AverageHash.php
-				 * - https://stackoverflow.com/questions/32590719/which-is-the-best-algorithm-to-to-find-a-image-which-is-similar-to-the-input-i
-				 */
-				$pixels[] = floor(($r * 0.299) + ($g * 0.587) + ($b * 0.114));
-				# $pixels[] = floor(($r * 0.2126) + ($g * 0.7152) + ($b * 0.0722));
-			}
-		}
-		
-		# Determine if each pixel is above or below the average grey value
-		$grey_val = "";                                                 # Stores the final hash
-		$avg_grey = floor(array_sum($pixels) / count($pixels));
-		foreach($pixels as $pixel_grey_val){
-			$grey_val .= ($pixel_grey_val > $avg_grey) ? 1 : 0;
-		}
-		
-		
-		/*
-		 * Rotate/flip image so
-		 * - Darkest side is bottom right
-		 * - Lightest side is top left
-		 */
-		# Re-build the image so it reflects the hash value
-		$black = imagecolorallocate($output, 0, 0, 0);
-		$white = imagecolorallocate($output, 255, 255, 255);
-		
-		# Find the heaviest quarter
-		$quarters = [
-			'tl' => 0,
-			'tr' => 0,
-			'bl' => 0,
-			'br' => 0,
-		];
-		
-		$quarter_hash = [
-			'tl' => "",
-			'tr' => "",
-			'bl' => "",
-			'br' => "",
-		];
-		
-		$quarter_sizes = [
-			'tl'          => 0,
-			'tr'          => 0,
-			'bl'          => 0,
-			'br'          => 0,
-			'horiz_track' => floor($img_width / 2),
-			'vert_track'  => floor($img_height / 2),
-		];
-		
-		// Re-visit each pixel and count the total dark pixels in each quarter
-		$i = 0;
-		for($y = 0; $y < $img_height; $y++){
-			for($x = 0; $x < $img_width; $x++){
-				$is_black = ($pixels[$i] > $avg_grey) ? 0 : 1;          # True if the color is black
-				$color    = ($is_black) ? $black : $white;              # Specify the color values to use
-				
-				imagesetpixel($output, $x, $y, $color);
-				
-				# Left
-				if($x < floor($img_width / 2)){
-					if($y < floor($img_height / 2)){                    # Top Left
-						$quarter_sizes['tl']++;
-						$quarters['tl']     += $is_black;
-						$quarter_hash['tl'] .= $is_black;
-					}
-					else{                                               # Bottom Left
-						$quarter_sizes['bl']++;
-						$quarters['bl']     += $is_black;
-						$quarter_hash['bl'] .= $is_black;
-					}
-				}
-				
-				# Right
-				else{
-					if($y < floor($img_height / 2)){                    # Top Right
-						$quarter_sizes['tr']++;
-						$quarters['tr']     += $is_black;
-						$quarter_hash['tr'] .= $is_black;
-					}
-					else{                                               # Bottom Right
-						$quarter_sizes['br']++;
-						$quarters['br']     += $is_black;
-						$quarter_hash['br'] .= $is_black;
-					}
-				}
-				$i++;                                                   # Keep track of the index
-			}
-		}
-		
-		
-		# Find the heaviest corner
-		arsort($quarters);                                              # Sort by darkest to lightest
-		
-		
-		# Determine which quarter is the darkest
-		$darkest_vert  = (($quarters['tl'] + $quarters['tr']) >= ($quarters['bl'] + $quarters['br'])) ? 'top' : 'bottom';
-		$darkest_horiz = (($quarters['tr'] + $quarters['br']) >= ($quarters['tl'] + $quarters['bl'])) ? 'right' : 'left';
-		
-		# Specify rules for flipping the image
-		$flip_dir = [
-			'top-left'     => 'flip_both',      # Flip horizontal + flip vertical
-			'top-right'    => 'flip_vert',      # Flip vertical
-			'bottom-left'  => 'flip_horiz',     # Flip horizontal
-			'bottom-right' => NULL,             # No rotation needed
-		];
-		
-		$flip_rule = $flip_dir[$darkest_vert . '-' . $darkest_horiz];
-		
-		if($flip_rule){                         # If the image needs to be flipped
-			if($flip_rule == 'flip_both'){
-				imageflip($output, IMG_FLIP_BOTH);
-			}
-			elseif($flip_rule == 'flip_vert'){
-				imageflip($output, IMG_FLIP_VERTICAL);
-			}
-			else{
-				imageflip($output, IMG_FLIP_HORIZONTAL);
-			}
-		}
-		
-		
-		/*
-		 * Regenerate the hash after flipped
-		 */
-		$flipped_hash_regen = "";
-		
-		for($y = 0; $y < $img_height; $y++){
-			for($x = 0; $x < $img_width; $x++){
-				$rgb = imagecolorat($output, $x, $y);                   # Get the color
-				
-				$r = ($rgb >> 16) & 0XFF;
-				$g = ($rgb >> 8) & 0XFF;
-				$b = $rgb & 0XFF;
-				
-				
 				$color_code = floor(($r * 0.299) + ($g * 0.587) + ($b * 0.114));
+				$color_val  = ($color_code > 127) ? 0 : 1;            # If it is greater than 255*.5 then it its black (1) otherwise white(2)
 				
-				$flipped_hash_regen .= ($color_code == 255) ? 0 : 1;        # Black == 1
+				$binary_hash .= $color_val;                             # If it is greater than 255*.5 then it its black (1) otherwise white(2)
+				$bit_count   += $color_val;                             # Count the total '1' values in the string
 			}
 		}
 		
 		# Rebuild the hash for the rotated image
-		$flipped_hash = $quarter_hash['tl'] . $quarter_hash['tr'] . $quarter_hash['bl'] . $quarter_hash['br'];
-		
-		$this->ch->output[$img_id]['hash']['quarter_sizes']         = $quarter_sizes;
 		$this->ch->output[$img_id]['hash']['avg_grey']              = $avg_grey;
-		$this->ch->output[$img_id]['hash']['colors']                = $pixels;
-		$this->ch->output[$img_id]['hash']['base_hash']             = $grey_val;
-		$this->ch->output[$img_id]['hash']['final_hash']            = $flipped_hash;
-		$this->ch->output[$img_id]['hash']['flip_hash_regen']       = $flipped_hash_regen;
-		$this->ch->output[$img_id]['hash']['quarters']              = $quarters;
 		$this->ch->output[$img_id]['hash']['darkest']['vertical']   = $darkest_vert;
 		$this->ch->output[$img_id]['hash']['darkest']['horizontal'] = $darkest_horiz;
 		$this->ch->output[$img_id]['hash']['flip_direction']        = empty($flip_rule) ? 'none' : $flip_rule;
 		$this->ch->output[$img_id]['hash']['values']                = [
-			'bin' => $flipped_hash_regen,                         # Binary hash
-			'int' => bindec($flipped_hash_regen),                 # Int representation of the binary value (BigInt Unsigned)
-			'hex' => dechex(bindec($flipped_hash_regen)),         # Hex representation of the binary value (16 chars)
+			'bin'       => $binary_hash,                                # Binary hash
+			'int'       => bindec($binary_hash),                        # Int representation of the binary value (BigInt Unsigned)
+			'hex'       => dechex(bindec($binary_hash)),                # Hex representation of the binary value (16 chars)
+			'bit_count' => $bit_count,
 		];
 		
 		return $output;
