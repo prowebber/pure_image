@@ -236,6 +236,8 @@ You can store the image hashes in a database.  Below is an example of a MySQL ta
 | `total_bits` | tinyint         | Contains the total `1` values in the binary string |
 | `img_hash`   | bigint UNSIGNED | Stores the hash value as an integer                |
 
+More MySQL logic to follow...
+
 
 **Hash Logic Used**
 ```
