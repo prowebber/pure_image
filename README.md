@@ -270,6 +270,7 @@ You can store the image hashes in a database.  Below is an example of a MySQL ta
 * PHP does not support unsigned BigInt values
 * If the image bit value is larger than a BigInt, it will be an invalid hash
 * The best workaround is to use the bit value and have MySQL convert it to the BitInt hash
+* More SQL tips to come
 
 ```sql
 - This will convert the binary string to an Unsigned BigInt in MySQL
