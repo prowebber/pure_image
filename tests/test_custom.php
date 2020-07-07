@@ -23,7 +23,7 @@ $pimage->add->image($img_dir . $img_name);      # Specify the source image
 //$pimage->out->fit([
 //	'width'     => 220,
 //	'height'    => 75,
-//	'save_path' => $img_dir . '/fit_7674.jpg',
+//	'save_path' => $img_dir . '/test_fit.jpg',
 //]);
 
 /**
@@ -42,8 +42,8 @@ $pimage->add->image($img_dir . $img_name);      # Specify the source image
  * Generate a Perceptual Image Hash
  */
 $pimage->out->hash([
-	'save_img'  => FALSE,                               # True only if you want the image saved
-	'save_path' => $img_dir . '/hash_test.jpg',
+	'save_img'  => TRUE,                               # True only if you want the image saved
+	'save_path' => $img_dir . '/hash_test_new_flipped.jpg',
 ]);
 
 $pimage->save->image();                               # Save the images

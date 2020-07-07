@@ -20,40 +20,70 @@ class Generate__Image{
 	
 	
 	
-	public function make($source, $source_type, $output_type, $output_width, $output_height, $save_path, $quality, $img_id){
-		$is_crop_needed = $this->ch->output[$img_id]['rules']['is_crop_needed'];
-		$is_hash        = $this->ch->output[$img_id]['rules']['is_hash'];       # True if creating an image hash
-		$is_save_img    = $this->ch->output[$img_id]['save_as']['save_img'];    # False if the image should not be saved (only with hashes)
-		$source_width   = $source['width_px'];
-		$source_height  = $source['height_px'];
-		$source_path    = $source['abs_path'];
+	public function create($img_id){
+		# Source params
+		$source_type   = $this->ch->source['file_type'];                               # The type of image the source file is
+		$source_path   = $this->ch->source['abs_path'];
+		$source_width  = $this->ch->source['width_px'];
+		$source_height = $this->ch->source['height_px'];
 		
-		$output = imagecreatetruecolor($output_width, $output_height);      # Create a blank image with the specified dimensions
+		$is_crop_needed = $this->ch->output[$img_id]['rules']['is_crop_needed'];        # True if a crop is needed
+		$is_hash        = $this->ch->output[$img_id]['rules']['is_hash'];               # True if creating an image hash
+		$is_save_img    = $this->ch->output[$img_id]['save_as']['save_img'];            # False if the image should not be saved (only with hashes)
+		$save_path      = $this->ch->output[$img_id]['save_as']['file_path'];           # Where to save the image
+		$output_type    = $this->ch->output[$img_id]['save_as']['file_type'];
+		$quality        = $this->ch->output[$img_id]['quality'];
+		$output_width   = $this->ch->output[$img_id]['rules']['resize']['width'];
+		$output_height  = $this->ch->output[$img_id]['rules']['resize']['height'];
 		
-		// Input params
-		if($source_type == 'jpg'){                                          # Jpg images
-			$input = imagecreatefromjpeg($source_path);                     # Copy the source image
+		
+		$output = imagecreatetruecolor($output_width, $output_height);                  # Create a blank image with the specified dimensions
+		
+		// Copy the source image
+		if($source_type == 'jpg'){                                                      # Jpg images
+			$input = imagecreatefromjpeg($source_path);                                 # Copy the source image
 		}
-		elseif($source_type == 'png'){                                      # Png images
-			$input = imagecreatefrompng($source_path);                      # Copy the source image
+		elseif($source_type == 'png'){                                                  # Png images
+			$input = imagecreatefrompng($source_path);                                  # Copy the source image
 		}
-		elseif($source_type == 'gif'){                                      # Gif images
-			$input = imagecreatefromgif($source_path);                      # Copy the source image
+		elseif($source_type == 'gif'){                                                  # Gif images
+			$input = imagecreatefromgif($source_path);                                  # Copy the source image
 		}
 		
 		# Copy the image and resize + resample
 		imagecopyresampled($output, $input, 0, 0, 0, 0, $output_width, $output_height, $source_width, $source_height);
 		
-		// If creating a hashed image
-		if($is_hash && !$is_crop_needed){                                   # Handle images that are NOT cropped
-			$output = $this->calcHash($img_id, $output);
+		/*
+		 * If the image needs to be cropped
+		 */
+		if($is_crop_needed){
+			$crop_x_pos  = $this->ch->output[$img_id]['rules']['crop']['x'];
+			$crop_y_pos  = $this->ch->output[$img_id]['rules']['crop']['y'];
+			$crop_width  = $this->ch->output[$img_id]['rules']['crop']['width'];
+			$crop_height = $this->ch->output[$img_id]['rules']['crop']['height'];
 			
-			if($is_save_img == FALSE){                                      # If the hashed image is NOT to be saved
-				imagedestroy($output);                                      # Clear the image objects from PHP memory
+			$crop_params = [
+				'x'      => $crop_x_pos,                                        # Starting x coordinate
+				'y'      => $crop_y_pos,                                        # Starting y coordinate
+				'width'  => $crop_width,                                        # Width to crop to
+				'height' => $crop_height                                        # Height to crop to
+			];
+			
+			$output = imagecrop($output, $crop_params);                         # Create the cropped image
+		}
+		
+		/*
+		 * If creating a hash
+		 */
+		if($is_hash){
+			$output = $this->calcHash($img_id, $output);                        # Create the hash
+			if($is_save_img == FALSE){                                          # If the hashed image is NOT to be saved
+				imagedestroy($output);                                          # Clear the image objects from PHP memory
 				imagedestroy($input);
-				return;                                                     # Don't continue
+				return;                                                         # Don't continue
 			}
 		}
+		
 		
 		// Create the image
 		if($output_type == 'jpg'){
@@ -241,56 +271,6 @@ class Generate__Image{
 		];
 		
 		return $output;
-	}
-	
-	
-	
-	public function crop($source_path, $source_type, $output_width, $output_height, $x_pos, $y_pos, $quality, $img_id){
-		$is_crop_needed = $this->ch->output[$img_id]['rules']['is_crop_needed'];
-		$is_hash        = $this->ch->output[$img_id]['rules']['is_hash'];       # True if creating an image hash
-		$is_save_img    = $this->ch->output[$img_id]['save_as']['save_img'];    # False if the image should not be saved (only with hashes)
-		
-		// Input params
-		if($source_type == 'jpg'){                                          # Jpg images
-			$input = imagecreatefromjpeg($source_path);                     # Copy the source image
-		}
-		elseif($source_type == 'png'){                                      # Png images
-			$input = imagecreatefrompng($source_path);                      # Copy the source image
-		}
-		elseif($source_type == 'gif'){                                      # Gif images
-			$input = imagecreatefromgif($source_path);                      # Copy the source image
-		}
-		
-		// Crop the image
-		$crop_params = [
-			'x'      => $x_pos,                                             # Starting x coordinate
-			'y'      => $y_pos,                                             # Starting y coordinate
-			'width'  => $output_width,                                      # Width to crop to
-			'height' => $output_height                                      # Height to crop to
-		];
-		
-		$cropped_img = imagecrop($input, $crop_params);                     # Create the cropped image
-		
-		// If creating a hashed image
-		if($is_hash && $is_crop_needed){                                    # Handle images that ARE cropped
-			$cropped_img = $this->calcHash($img_id, $cropped_img);
-			
-			if($is_save_img == FALSE){                                      # If the hashed image is NOT to be saved
-				imagedestroy($cropped_img);                                 # Clear the image objects from PHP memory
-				return;                                                     # Don't continue
-			}
-		}
-		
-		// Save the image
-		if($source_type == 'jpg'){                                          # Jpg images
-			imagejpeg($cropped_img, $source_path, $quality);                # Overwrite the source image with the cropped image
-		}
-		elseif($source_type == 'png'){                                      # Png images
-			imagepng($cropped_img, $source_path, $quality);                 # Overwrite the source image with the cropped image
-		}
-		elseif($source_type == 'gif'){                                      # Gif images
-			imagegif($cropped_img, $source_path);
-		}
 	}
 }
 
