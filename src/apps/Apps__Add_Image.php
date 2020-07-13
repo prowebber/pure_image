@@ -32,7 +32,8 @@ class Apps__Add_Image{
 	 * @return bool Returns False on error
 	 */
 	public function image($path){
-		$this->ch->output = [];             # Reset the output array
+		$this->ch->image_id = NULL;         # Reset the image ID
+		$this->ch->output   = [];           # Reset the output array
 		
 		# Verify the source image exists before continuing
 		if(!file_exists($path)){
