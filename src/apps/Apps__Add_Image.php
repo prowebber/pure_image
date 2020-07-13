@@ -32,8 +32,10 @@ class Apps__Add_Image{
 	 * @return bool Returns False on error
 	 */
 	public function image($path){
-		$this->ch->image_id = NULL;         # Reset the image ID
-		$this->ch->output   = [];           # Reset the output array
+		# Reset params so every new image has no previous artifacts
+		$this->ch->image_id         = NULL;         # Reset the image ID
+		$this->ch->is_custom_img_id = NULL;         # Reset 'is custom img ID'
+		$this->ch->output           = [];           # Reset the output array
 		
 		# Verify the source image exists before continuing
 		if(!file_exists($path)){

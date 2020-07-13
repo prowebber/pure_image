@@ -11,7 +11,7 @@ class Channel{
 	private $errors_detailed;
 	private $apps_err_ids;
 	private $error_ids;
-	private $is_custom_img_id;
+	public  $is_custom_img_id;
 	public  $image_id;
 	//---------------	Injected Classes	-----------------
 	//---------------	Added Classes		-----------------
