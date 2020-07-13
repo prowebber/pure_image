@@ -139,7 +139,7 @@ class Channel{
 	
 	
 	
-	public function getErrorsIds(){
+	public function getDetailedErrors(){
 		return $this->error_ids;
 	}
 	
@@ -189,14 +189,14 @@ class Channel{
 	
 	public function addErr($err_msg, $err_id = 0){
 		$err_hash = md5($err_msg);
+		$image_id = $this->image_id;
 		
-		if(!empty($err_id)) $this->error_ids[$err_id] = 1;                      # Record the error ID
+		if(!empty($err_id)) $this->error_ids[$err_id] = 1;              # Record the error ID
 		
-		if(isset($this->errors[$err_hash])) return;         # Don't continue if the error is already added
-		$this->errors[$err_hash] = $err_msg;
+		if(isset($this->errors[$err_hash])) return;                     # Don't continue if the error is already added
+		$this->errors[$err_hash] = $err_msg;                            # General errors
 		
-		
-		$this->errors_detailed[$err_id] = $err_msg;
+		$this->errors_detailed[$image_id][$err_id] = $err_msg;
 	}
 }
 
