@@ -86,7 +86,9 @@ class PureImage{
 	/*
 	 * Return an array of error IDs that were triggered
 	 */
+	public function getDetailedErrors(){
 	
+	}
 	
 	
 	/**

@@ -115,12 +115,14 @@ Below are the different ways Pure Image can format the output image:
 Compress the image.  Do not scale or resize the output image.
 
 **Options**
+You can use these options on all types of methods.
 
 | Param         | Type     | Required | Description                                                                                                                        |
 |:--------------|:---------|:--------:|:-----------------------------------------------------------------------------------------------------------------------------------|
 | 'save_path'   | _string_ |   Yes    | The absolute path of the output file.                                                                                              |
 | 'quality'     | _int_    | Optional | The desired compression/quality level. [See Compression Settings](#image-compressionquality)                                       |
 | 'output_type' | _string_ | Optional | (jpg\|png\|gif) The type of image you want this converted to or saved as. (Uses the filetype of the source image if not specified) |
+| 'image_id'    | _string_ | Optional | Allows you to specify a unique ID for each image (output array and error array will reference this ID when called)                 |
 
 **Example Request**
 ```php
@@ -363,8 +365,10 @@ method call:
 $result = $pimage->getResult();
 ```
 
-This will return a numeric array with details for each image processed.  The array is built
-chronologically so requesting `$result[0]` will return the [debug](#debug) info for that image.
+This will return a array with details for each image processed.  If you specified a unique ID for each
+image, the response array will be keyed by that ID.  If you __did not__ specify an ID for each image the
+response array start at `0` and will increment for each additional image output.  So requesting `$result[0]` will
+return the [debug](#debug) info for that image.
 &nbsp;
 
 
@@ -396,6 +400,37 @@ the MD5 value of the error message.
 ```php
 $pimage->getErrors();
 ````
+&nbsp;
+
+**Return detailed array of errors** \
+You can return a detailed array of errors (keyed by the image ID) by using the following method call:
+
+```php
+$pimage->getDetailedErrors();
+````
+
+This will return an array with the following syntax:
+```
+array[$image_id][$err_id] = Error message;
+```
+
+**Errors by ID**
+These are the error codes (and errors) Pure Image checks.
+
+| err_id | Error Message                                                                      |
+|:------:|:-----------------------------------------------------------------------------------|
+|   1    | The source image was not found or does not exist                                   |
+|   2    | The mime is not supported                                                          |
+|   3    | Only the width or height can be specified with the scale method, but both are set  |
+|   4    | You cannot set the maximum image size to a non-integer value                       |
+|   5    | The image filetype is not supported                                                |
+|   6    | The image file size exceeds the specified limit                                    |
+|   7    | The output height cannot be taller than the source image                           |
+|   8    | The output width cannot be wider than the source image                             |
+|   9    | You cannot start using a custom image ID after pImage assigned incremental IDs     |
+|   10   | You must specify an ID for each image when using custom IDs                        |
+|   11   | Another image has already been assigned this ID.  Each image must have a unique ID |
+
 &nbsp;
 
 ### Debug
