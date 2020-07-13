@@ -377,6 +377,24 @@ Pure Image id designed to catch all errors before generating any output images. 
 will store the error message and return false.  Below are different ways to check errors: \
 &nbsp;
 
+**Errors by ID** \
+These are the error codes (and errors) Pure Image checks.
+
+| err_id | Error Message                                                                      |
+|:------:|:-----------------------------------------------------------------------------------|
+|   1    | The source image was not found or does not exist                                   |
+|   2    | The mime is not supported                                                          |
+|   3    | Only the width or height can be specified with the scale method, but both are set  |
+|   4    | You cannot set the maximum image size to a non-integer value                       |
+|   5    | The image filetype is not supported                                                |
+|   6    | The image file size exceeds the specified limit                                    |
+|   7    | The output height cannot be taller than the source image                           |
+|   8    | The output width cannot be wider than the source image                             |
+|   9    | You cannot start using a custom image ID after pImage assigned incremental IDs     |
+|   10   | You must specify an ID for each image when using custom IDs                        |
+|   11   | Another image has already been assigned this ID.  Each image must have a unique ID |
+
+
 **Check if any errors exist** \
 The following will return `TRUE` if there are no errors; `FALSE` if errors exist.
 
@@ -413,23 +431,6 @@ This will return an array with the following syntax:
 ```
 array[$image_id][$err_id] = Error message;
 ```
-
-**Errors by ID**
-These are the error codes (and errors) Pure Image checks.
-
-| err_id | Error Message                                                                      |
-|:------:|:-----------------------------------------------------------------------------------|
-|   1    | The source image was not found or does not exist                                   |
-|   2    | The mime is not supported                                                          |
-|   3    | Only the width or height can be specified with the scale method, but both are set  |
-|   4    | You cannot set the maximum image size to a non-integer value                       |
-|   5    | The image filetype is not supported                                                |
-|   6    | The image file size exceeds the specified limit                                    |
-|   7    | The output height cannot be taller than the source image                           |
-|   8    | The output width cannot be wider than the source image                             |
-|   9    | You cannot start using a custom image ID after pImage assigned incremental IDs     |
-|   10   | You must specify an ID for each image when using custom IDs                        |
-|   11   | Another image has already been assigned this ID.  Each image must have a unique ID |
 
 &nbsp;
 
