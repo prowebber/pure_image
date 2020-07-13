@@ -427,7 +427,7 @@ You can return a detailed array of errors (keyed by the image ID) by using the f
 $pimage->getDetailedErrors();
 ````
 
-This will return an array with the following syntax:
+This will return an array with the following syntax:  Each `$err_id` is outlined in the table above.
 ```
 array[$image_id][$err_id] = Error message;
 ```
