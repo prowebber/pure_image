@@ -39,19 +39,19 @@ class Apps__Set_Output{
 	
 	
 	
-	public function cover($params, $image_id = NULL){
+	public function cover($params){
 		$this->image($params, 'cover');
 	}
 	
 	
 	
-	public function compress($params, $image_id = NULL){
+	public function compress($params){
 		$this->image($params, 'compress');
 	}
 	
 	
 	
-	public function fit($params, $image_id = NULL){
+	public function fit($params){
 		$this->image($params, 'fit');
 	}
 	
