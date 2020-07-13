@@ -33,36 +33,31 @@ class Apps__Set_Output{
 	
 	
 	
-	public function scale($params, $image_id = null){
-		$this->ch->setImageId($image_id);                   # Set the ID for this image
+	public function scale($params){
 		$this->image($params, 'scale');
 	}
 	
 	
 	
-	public function cover($params, $image_id = null){
-		$this->ch->setImageId($image_id);                   # Set the ID for this image
+	public function cover($params, $image_id = NULL){
 		$this->image($params, 'cover');
 	}
 	
 	
 	
-	public function compress($params, $image_id = null){
-		$this->ch->setImageId($image_id);                   # Set the ID for this image
+	public function compress($params, $image_id = NULL){
 		$this->image($params, 'compress');
 	}
 	
 	
 	
-	public function fit($params, $image_id = null){
-		$this->ch->setImageId($image_id);                   # Set the ID for this image
+	public function fit($params, $image_id = NULL){
 		$this->image($params, 'fit');
 	}
 	
 	
 	
-	public function hash($params, $image_id = null){
-		$this->ch->setImageId($image_id);                   # Set the ID for this image
+	public function hash($params){
 		$params['width']  = 16;     # DO NOT CHANGE THIS
 		$params['height'] = 16;     # DO NOT CHANGE THIS
 		
@@ -76,6 +71,9 @@ class Apps__Set_Output{
 	 */
 	private function image($params, $method){
 		if(!$this->ch->errorFree()) return FALSE;               # Don't continue if an error exists
+		
+		$custom_image_id = $params['image_id'] ?? NULL;         # See if an image ID was specified by the user
+		$this->ch->setImageId($custom_image_id);                # Set the ID for this image
 		$image_id = $this->ch->image_id;                        # Get the current image ID
 		
 		// Get source image info
