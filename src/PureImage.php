@@ -83,6 +83,11 @@ class PureImage{
 	}
 	
 	
+	/*
+	 * Return an array of error IDs that were triggered
+	 */
+	
+	
 	
 	/**
 	 * Return an array of all the images processed

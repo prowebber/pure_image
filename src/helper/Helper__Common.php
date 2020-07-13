@@ -36,7 +36,7 @@ class Helper__Common {
 	
 	public function getImageTypeByMime($mime){
 		if(!isset($this->ch->allowed_mimes[$mime])){
-			$this->ch->addErr("The mime '$mime' is not yet supported.");
+			$this->ch->addErr("The mime '$mime' is not yet supported.", 2);
 			return false;
 		}
 		

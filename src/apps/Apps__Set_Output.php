@@ -33,31 +33,36 @@ class Apps__Set_Output{
 	
 	
 	
-	public function scale($params){
+	public function scale($params, $image_id = null){
+		$this->ch->setImageId($image_id);                   # Set the ID for this image
 		$this->image($params, 'scale');
 	}
 	
 	
 	
-	public function cover($params){
+	public function cover($params, $image_id = null){
+		$this->ch->setImageId($image_id);                   # Set the ID for this image
 		$this->image($params, 'cover');
 	}
 	
 	
 	
-	public function compress($params){
+	public function compress($params, $image_id = null){
+		$this->ch->setImageId($image_id);                   # Set the ID for this image
 		$this->image($params, 'compress');
 	}
 	
 	
 	
-	public function fit($params){
+	public function fit($params, $image_id = null){
+		$this->ch->setImageId($image_id);                   # Set the ID for this image
 		$this->image($params, 'fit');
 	}
 	
 	
 	
-	public function hash($params){
+	public function hash($params, $image_id = null){
+		$this->ch->setImageId($image_id);                   # Set the ID for this image
 		$params['width']  = 16;     # DO NOT CHANGE THIS
 		$params['height'] = 16;     # DO NOT CHANGE THIS
 		
@@ -71,6 +76,7 @@ class Apps__Set_Output{
 	 */
 	private function image($params, $method){
 		if(!$this->ch->errorFree()) return FALSE;               # Don't continue if an error exists
+		$image_id = $this->ch->image_id;                        # Get the current image ID
 		
 		// Get source image info
 		$source_img_type = $this->ch->source['file_type'];      # The type of image file e.g. jpg, png, etc.
@@ -180,7 +186,7 @@ class Apps__Set_Output{
 			$this->params['final_height_px'] = $this->params['rules']['resize']['height'];
 		}
 		
-		$this->ch->output[] = $this->params;            # Add to the output
+		$this->ch->output[$image_id] = $this->params;            # Add to the output
 	}
 	
 	
@@ -193,7 +199,7 @@ class Apps__Set_Output{
 		
 		// Verify only one side is specified
 		if(!empty($width_out) && !empty($height_out)){
-			$this->ch->addErr("Only the width or height can be specified with 'scale', both are currently set.");
+			$this->ch->addErr("Only the width or height can be specified with 'scale', both are currently set.", 3);
 			return FALSE;
 		}
 		
