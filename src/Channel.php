@@ -79,7 +79,7 @@ class Channel{
 	 * - If user does not assign any IDs, pImage will auto-increment IDs starting at zero
 	 * - You cannot mix auto-generated IDs and custom IDs
 	 *
-	 * @param $image_id
+	 * @param $image_id {String|Int|Null} The desired image ID
 	 */
 	public function setImageId($image_id){
 		
