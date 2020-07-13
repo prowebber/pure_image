@@ -83,18 +83,29 @@ class Channel{
 	 */
 	public function setImageId($image_id){
 		
+		// Not yet determined
+		if(is_null($this->is_custom_img_id)){                       # If this is the 1st image added
+			if(is_null($image_id)){                                 # If no ID was specified
+				$this->is_custom_img_id = FALSE;                    # Let pImage handle the image IDs
+				$this->image_id         = 0;                        # Start at zero for the first ID
+			}
+			else{
+				$this->is_custom_img_id = TRUE;                     # Specify the user is assigning IDs
+				$this->image_id         = $image_id;
+			}
+		}
+		
 		// Use auto-incrementing IDs
-		if($this->is_custom_img_id == FALSE){                           # If auto-incrementing the image IDs
-			if(!is_null($image_id)){                                    # If the user is attempting to set the ID of this image
+		elseif($this->is_custom_img_id == FALSE){                   # If auto-incrementing the image IDs
+			if(!is_null($image_id)){                                # If the user is attempting to set the ID of this image
 				$this->addErr("pImage started automatically setting image IDs, but you specified a custom ID.", 9);
 			}
-			$this->image_id++;                                          # Increment the current ID anyway
-			return;
+			$this->image_id++;                                      # Increment the current ID anyway
 		}
 		
 		// Use custom IDs
 		elseif($this->is_custom_img_id == TRUE){
-			if(is_null($image_id)){                                     # If the user did not specify an ID for this image
+			if(is_null($image_id)){                                 # If the user did not specify an ID for this image
 				$this->addErr("All images must have an ID specified when using a custom ID", 10);
 			}
 			
@@ -103,19 +114,6 @@ class Channel{
 			}
 			
 			$this->image_id = $image_id;
-			return;
-		}
-		
-		// Not yet determined
-		elseif(is_null($this->is_custom_img_id)){                       # If this is the 1st image added
-			if(is_null($image_id)){                                     # If no ID was specified
-				$this->is_custom_img_id = FALSE;                        # Let pImage handle the image IDs
-				$this->image_id         = 0;                            # Start at zero for the first ID
-			}
-			else{
-				$this->is_custom_img_id = TRUE;                         # Specify the user is assigning IDs
-				$this->image_id         = $image_id;
-			}
 		}
 	}
 	
