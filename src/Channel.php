@@ -138,7 +138,7 @@ class Channel{
 	
 	
 	public function getDetailedErrors(){
-		return $this->error_ids;
+		return $this->errors_detailed;
 	}
 	
 	
