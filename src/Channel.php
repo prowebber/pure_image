@@ -190,6 +190,12 @@ class Channel{
 	
 	
 	
+	/**
+	 * Record an error message
+	 *
+	 * @param     $err_msg
+	 * @param int $err_id
+	 */
 	public function addErr($err_msg, $err_id = 0){
 		$err_hash = md5($err_msg);
 		
