@@ -192,13 +192,17 @@ class Channel{
 	
 	public function addErr($err_msg, $err_id = 0){
 		$err_hash = md5($err_msg);
-		$image_id = $this->image_id;
 		
-		if(!empty($err_id)) $this->error_ids[$err_id] = 1;              # Record the error ID
-		
+		// Keep track of which errors have occurred (so duplicates are not included)
 		if(isset($this->errors[$err_hash])) return;                     # Don't continue if the error is already added
 		$this->errors[$err_hash] = $err_msg;                            # General errors
 		
+		// Keep track of which error IDs have occurred
+		if(!empty($err_id)) $this->error_ids[$err_id] = 1;
+		
+		// Specify the detailed error
+		$image_id = $this->image_id;
+		if(is_null($image_id)) $image_id = 'source';                    # It is a 'source' error if there is no image ID
 		$this->errors_detailed[$image_id][$err_id] = $err_msg;
 	}
 }
