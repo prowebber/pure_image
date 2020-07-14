@@ -443,7 +443,6 @@ class Apps__Set_Output{
 				$set_width -= 1;                            # Subtract 1
 			}
 			
-			
 			# Verify there are no borders after cropped
 			if($params_break_ratio){                                                    # If the params breaks the aspect ratio, you have to crop the opposite side
 				$set_height = floor($needed_height);
