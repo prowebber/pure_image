@@ -137,6 +137,11 @@ class Channel{
 	
 	
 	
+	/**
+	 * Returns an array of detailed errors (if errors exist)
+	 *
+	 * @return mixed
+	 */
 	public function getDetailedErrors(){
 		return $this->errors_detailed;
 	}
