@@ -9,6 +9,7 @@ of Pure Image:
 * Handles image type conversions (e.g. convert .png to .jpg)
 * Maintains the original image's aspect ratio while scaling down
 * Detects & fixes images that have an aspect ratio which cannot be divided evenly to fit the specified width/height.
+* Generates a hash fingerprint for each image to use for detecting duplicates
 
 ### General
 
@@ -487,4 +488,23 @@ Below is an overview of the information output when debugging.
 |   |   |-- width                   ** {Int} Width of the crop
 |   |   |-- height                  ** {Int} Height of the crop
 |   |   |-- crop_position           ** {String} Describes crop position {x y}
+```
+
+
+## Usage Examples
+
+### Example 1
+This is the complete process currently used in production to add images.
+
+```php
+# Init pImage
+$pImage = new PureImage();
+
+# Add the image
+$pImage->add->image('path/to/image.jpg');
+
+# Check for errors triggered when the image was added
+if(!$pImage->isErrorFree()){            # If there are errors
+	
+}
 ```

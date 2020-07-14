@@ -7,6 +7,7 @@ $img_dir  = __DIR__ . '/img_source';
 $img_name = '\water-original.jpg';
 //$img_name = '\water-original-flipped.jpg';
 //$img_name = '\water-original-unflipped.jpg';
+$img_name = '\hard-to-scale.jpg';
 
 
 # Person Test
@@ -43,7 +44,7 @@ $pimage->add->image($img_dir . $img_name);      # Specify the source image
  */
 $pimage->out->hash([
 	'save_img'  => TRUE,                               # True only if you want the image saved
-	'save_path' => $img_dir . '/hash_test_new_flipped.jpg',
+	'save_path' => $img_dir . '/hash_hard_to_scale.jpg',
 ]);
 
 $pimage->save->image();                               # Save the images

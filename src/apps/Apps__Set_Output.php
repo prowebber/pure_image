@@ -363,27 +363,49 @@ class Apps__Set_Output{
 		if($source_longest_side == 'height'){                                           # If the source image is taller than it is wide
 			
 			# Get the height if the image was scaled down to fit the width
-			$ratio         = $width_source / $width_out;
-			$needed_height = $height_source / $ratio;
+			$ratio              = $width_source / $width_out;
+			$needed_height      = $height_source / $ratio;
+			$needed_width       = $width_out;                                           # Set as the desired width (by default)
+			$params_break_ratio = FALSE;                                                # True if the cover params won't fit the image at the original aspect ratio
+			
+			# If the aspect ratio cannot meet the desired dimensions
+			if($needed_height < $height_out){                                           # If the image will be too small to fit the dimensions
+				$params_break_ratio = TRUE;
+				$height_growth_pct  = $height_out / $needed_height;                     # Get the % the height needs to be multiplied by to fit the dimensions
+				$needed_width       = $width_out * $height_growth_pct;                  # Multiply the width by the same height growth %
+				$needed_height      = $height_out;                                      # Use the default desired height
+				
+				$this->params['rules']['calc_dimensions']['height_growth_pct']         = $height_growth_pct;
+				$this->params['rules']['calc_dimensions']['width_after_height_growth'] = $needed_height;
+			}
 			
 			$this->params['rules']['calc_dimensions']['ratio']  = $ratio;
-			$this->params['rules']['calc_dimensions']['width']  = $width_out;           # Use the width out the user specified
+			$this->params['rules']['calc_dimensions']['width']  = $needed_width;        # Use the width out the user specified
 			$this->params['rules']['calc_dimensions']['height'] = $needed_height;       # Use the height out the user specified
 			
 			# The final height needs to be even and cannot be a decimal
 			$set_height = floor($needed_height);
-			if($set_height % 2 != 0){                        # If the set height is odd
-				$set_height -= 1;                            # Subtract 1
+			if($set_height % 2 != 0) $set_height -= 1;                                  # If the set height is odd; subtract 1
+			
+			# Verify there are no borders after cropped
+			if($params_break_ratio){                                                    # If the params breaks the aspect ratio, you have to crop the opposite side
+				$set_width = floor($needed_width);
+				if($set_width % 2 != 0) $set_width -= 1;                                # If the set width is odd; subtract 1
+				
+				$middle_y = 0;
+				$middle_x = ($set_width - $width_out) / 2;
 			}
-			# @todo add a check to verify the image can fit the desired dimension
+			else{
+				$middle_y = ($set_height - $height_out) / 2;
+				$middle_x = 0;
+			}
+			
 			
 			# Since the image does not need to keep aspect ratio, round down to the nearest pixel @todo test this theory
-			$this->params['rules']['resize']['width']  = $width_out;
+			$this->params['rules']['resize']['width']  = $needed_width;
 			$this->params['rules']['resize']['height'] = $set_height;
 			
-			$middle_y = ($set_height - $height_out) / 2;
-			
-			$this->params['rules']['crop']['x']             = 0;
+			$this->params['rules']['crop']['x']             = $middle_x;
 			$this->params['rules']['crop']['y']             = $middle_y;
 			$this->params['rules']['crop']['width']         = $width_out;
 			$this->params['rules']['crop']['height']        = $height_out;
@@ -394,28 +416,53 @@ class Apps__Set_Output{
 		elseif($source_longest_side == 'width'){                                    # If the source image is wider than it is tall
 			
 			# Get the width if the image was scaled down to fit the height
-			$ratio        = $height_source / $height_out;
-			$needed_width = $width_source / $ratio;
+			$ratio              = $height_source / $height_out;
+			$needed_width       = $width_source / $ratio;
+			$needed_height      = $height_out;                                      # Set as the desired height (by default)
+			$params_break_ratio = FALSE;                                            # True if the cover params won't fit the image at the original aspect ratio
 			
+			# If the aspect ratio cannot meet the desired dimensions
+			if($needed_width < $width_out){                                         # If the image will be too small to fit the dimensions
+				$params_break_ratio = TRUE;
+				$width_growth_pct   = $width_out / $needed_width;                   # Get the % the width needs to be multiplied by to fit the dimensions
+				$needed_height      = $height_out * $width_growth_pct;              # Multiply the height by the same width growth %
+				$needed_width       = $width_out;                                   # Use the default desired width
+				
+				$this->params['rules']['calc_dimensions']['width_growth_pct']          = $width_growth_pct;
+				$this->params['rules']['calc_dimensions']['height_after_width_growth'] = $needed_height;
+			}
+			
+			# Specify the dimensions needed
 			$this->params['rules']['calc_dimensions']['ratio']  = $ratio;
 			$this->params['rules']['calc_dimensions']['width']  = $needed_width;
-			$this->params['rules']['calc_dimensions']['height'] = $height_out;      # Use the height out the user specified
+			$this->params['rules']['calc_dimensions']['height'] = $needed_height;
 			
 			# The final width needs to be even and cannot be a decimal
 			$set_width = floor($needed_width);
 			if($set_width % 2 != 0){                        # If the set width is odd
 				$set_width -= 1;                            # Subtract 1
 			}
-			# @todo add a check to verify the image can fit the desired dimension
+			
+			
+			# Verify there are no borders after cropped
+			if($params_break_ratio){                                                    # If the params breaks the aspect ratio, you have to crop the opposite side
+				$set_height = floor($needed_height);
+				if($set_height % 2 != 0) $set_height -= 1;                              # If the set height is odd; subtract 1
+				
+				$middle_y = ($set_height - $height_out) / 2;
+				$middle_x = 0;
+			}
+			else{
+				$middle_x = ($set_width - $width_out) / 2;
+				$middle_y = 0;
+			}
 			
 			# Since the image does not need to keep aspect ratio, round down to the nearest pixel
 			$this->params['rules']['resize']['width']  = $set_width;
-			$this->params['rules']['resize']['height'] = $height_out;
-			
-			$middle_x = ($set_width - $width_out) / 2;
+			$this->params['rules']['resize']['height'] = $needed_height;
 			
 			$this->params['rules']['crop']['x']             = $middle_x;
-			$this->params['rules']['crop']['y']             = 0;
+			$this->params['rules']['crop']['y']             = $middle_y;
 			$this->params['rules']['crop']['width']         = $width_out;
 			$this->params['rules']['crop']['height']        = $height_out;
 			$this->params['rules']['crop']['crop_position'] = 'middle center';
