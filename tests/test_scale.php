@@ -4,7 +4,7 @@
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $img_dir  = __DIR__ . '/img_source';
-$img_name = '\hard-to-scale.jpg';
+$img_name = '\bearded-dragon.jpg';
 //$img_name = '\hard-to-crop-vert.jpg';
 
 # Scale Test
@@ -15,7 +15,7 @@ $pimage->add->image($img_dir . $img_name);      # Specify the source image
 $pimage->out->cover([
 	'width'     => 640,
 	'height'    => 360,
-	'save_path' => $img_dir . '\covered-img.jpg',
+	'save_path' => $img_dir . '\mem-err.jpg',
 ]);
 
 //$pimage->out->cover([
